@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50 dark:bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZooBase Prueba Piloto - Municipalidad de General Pueyrredon</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        paseador: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        adiestrador: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+                        ppp: { 50: '#fff7ed', 500: '#f97316', 600: '#ea580c', 700: '#c2410c' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- FIREBASE SDK COMPAT -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Estilo oficial de credencial tipo hoja A4 / ticket (Siempre clara para impresión reglamentaria) */
+        .official-credential-container {
+            width: 780px;
+            background: #ffffff !important;
+            color: #1e293b !important;
+            border: 2px dashed #94a3b8;
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        /* Color azul institucional exacto del banner */
+        .bg-banner-blue {
+            background-color: #1b365d;
+        }
+        .text-banner-blue {
+            color: #1b365d;
+        }
+        .border-banner-blue {
+            border-color: #1b365d;
+        }
+        .ring-banner-blue:focus {
+            --tw-ring-color: #1b365d;
+            border-color: #1b365d;
+        }
+
+        /* Hover & Animation for Login Button */
+        .btn-login-custom {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-login-custom:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 25px -5px rgba(27, 54, 93, 0.4);
+        }
+
+        /* Efecto relieve y sombra clara al pasar el mouse para los botones de respaldo */
+        .btn-backup-custom {
+            transition: all 0.25s ease-in-out;
+        }
+        .btn-backup-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.15), 0 0 0 2px rgba(27, 54, 93, 0.15);
+        }
+
+        /* Efecto relieve 3D para el recuadro flotante de acceso */
+        .card-3d-relief {
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.4), 
+                        0 0 0 1px rgba(255, 255, 255, 0.9) inset,
+                        0 -6px 10px rgba(0, 0, 0, 0.08) inset;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center;
+                gap: 20px;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 dark:text-slate-100 flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" 
+         class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
+         style="background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url('fondomardelplata.png');">
+        
+        <!-- Recuadro flotante 3D de Carga, Éxito o Error con cambio dinámico de color -->
+        <div id="loginSuccessBox" class="hidden fixed z-50 card-3d-relief bg-gradient-to-br from-white to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200/80 dark:border-slate-700 px-8 py-6 rounded-2xl flex flex-col items-center justify-center space-y-3 transform scale-95 transition-all duration-300">
+            <div id="loginIconContainer" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shadow-inner transition-colors duration-300">
+                <i id="loginSuccessIcon" class="fa-solid fa-circle-notch fa-spin text-slate-600 dark:text-slate-300 text-xl"></i>
+            </div>
+            <span id="loginSuccessText" class="text-sm font-extrabold text-slate-800 dark:text-slate-100 tracking-wide text-center">Verificando credenciales en el sistema...</span>
+        </div>
+
+        <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden relative z-10 border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+            
+            <!-- BANNER SUPERIOR (Full Width) -->
+            <div class="w-full">
+                <img src="banner 1 salud.png" alt="Salud Mar del Plata" class="w-full h-auto object-cover block">
+            </div>
+
+            <!-- CONTENIDO DEL FORMULARIO CON PADDING INTERNO -->
+            <div class="w-full p-6 sm:p-8 flex flex-col items-center">
+                <div class="text-center mb-6">
+                    <div class="inline-flex p-3 bg-banner-blue text-white rounded-2xl shadow-lg mb-2">
+                        <i class="fa-solid fa-dog text-2xl"></i>
+                    </div>
+                    <h1 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">ZooBase Prueba Piloto</h1>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Municipalidad de General Pueyrredon</p>
+                    <div class="w-10 h-1 bg-banner-blue mx-auto mt-3 rounded-full"></div>
+                </div>
+
+                <!-- Login Form con autocomplete off -->
+                <form onsubmit="handleLogin(event)" class="space-y-4 w-full" autocomplete="off">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Usuario</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="loginUser" autocomplete="off" required placeholder="Ingrese su usuario" class="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1b365d]">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Contraseña</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="password" id="loginPass" autocomplete="new-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-2.5 border border-slate-300 dark:border-slate-700 rounded-xl text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1b365d]">
+                        </div>
+                    </div>
+
+                    <div id="loginError" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/50 p-2.5 rounded-lg border border-red-200 dark:border-red-900 text-center">
+                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> Usuario o contraseña incorrectos.
+                    </div>
+
+                    <button type="submit" id="btnLoginSubmit" class="btn-login-custom w-full py-3.5 bg-banner-blue hover:bg-[#152a4a] text-white rounded-xl text-sm font-extrabold shadow-md flex items-center justify-center space-x-2 cursor-pointer">
+                        <span>Ingresar al Sistema</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- BANNER INFERIOR (Full Width) -->
+            <div class="w-full">
+                <img src="banner 2 salud.png" alt="Decoración institucional" class="w-full h-auto object-cover block">
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="appContainer" class="hidden flex-col min-h-screen">
+
+        <!-- Cartel de Bienvenida / Cierre de Sesión / Carga de Módulo Flotante Estético 3D -->
+        <div id="welcomeBannerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all duration-500 opacity-0 pointer-events-none">
+            <div id="welcomeCardContent" class="card-3d-relief bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-3xl shadow-2xl flex flex-col items-center space-y-5 max-w-md w-full transform scale-75 transition-all duration-500 ease-out">
+                <div id="welcomeModalIconWrapper" class="w-20 h-20 rounded-2xl bg-banner-blue text-white flex items-center justify-center shadow-xl transition-colors duration-300">
+                    <i id="welcomeModalIcon" class="fa-solid fa-shield-dog text-4xl"></i>
+                </div>
+                <div class="text-center space-y-2">
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Zoobase MGP Prueba Piloto</h3>
+                    <h2 id="welcomeModalTitle" class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">¡Bienvenido!</h2>
+                    <p id="welcomeModalSub" class="text-sm text-slate-500 dark:text-slate-400 font-medium pt-1">Zoonosis y Bienestar Animal</p>
+                </div>
+                <div class="pt-2 flex items-center space-x-2.5">
+                    <div id="welcomeSpinner" class="w-5 h-5 border-2 border-banner-blue border-t-transparent rounded-full animate-spin"></div>
+                    <span id="welcomeSpinnerLabel" class="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider">Cargando módulos...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Navigation -->
+        <header class="bg-banner-blue text-white shadow-lg sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="requestReturnToMainMenu()">
+                    <div class="bg-white/10 p-2 rounded-lg text-white">
+                        <i class="fa-solid fa-dog text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">ZooBase Prueba Piloto</h1>
+                        <p class="text-xs text-blue-200">Municipalidad de General Pueyrredon</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button id="btnBackToMenu" onclick="requestReturnToMainMenu()" class="hidden px-3 py-1.5 bg-white/10 hover:bg-white/20 text-slate-200 rounded-lg text-xs font-semibold transition flex items-center space-x-1.5 border border-white/20">
+                        <i class="fa-solid fa-grip"></i>
+                        <span class="hidden sm:inline">Menú Principal</span>
+                    </button>
+                    
+                    <button id="btnManageUsers" onclick="openUsersModal()" class="hidden px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1.5" title="Gestionar Operadores">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span class="hidden sm:inline">Operadores</span>
+                    </button>
+
+                    <!-- BOTÓN DE MODO OSCURO / CLARO (Ubicado junto a cerrar sesión) -->
+                    <button onclick="toggleDarkMode()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center cursor-pointer" title="Cambiar Modo Oscuro/Claro">
+                        <i id="darkModeIcon" class="fa-solid fa-moon text-sm"></i>
+                    </button>
+
+                    <button onclick="handleLogout()" class="px-3 py-1.5 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1.5 cursor-pointer" title="Cerrar Sesión">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">Cerrar Sesión</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+            <div class="bg-slate-800 dark:bg-slate-700 text-white px-4 py-3 rounded-lg shadow-xl flex items-center space-x-3 border-l-4 border-emerald-500">
+                <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+                <span id="toastMsg" class="text-sm font-medium">Operación realizada con éxito</span>
+            </div>
+        </div>
+
+        <!-- MAIN MENU SCREEN -->
+        <main id="mainMenuView" class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+            <div class="text-center max-w-2xl mx-auto space-y-2 py-4">
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Módulos de Registro</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Seleccione una categoría para acceder a la base de datos.</p>
+            </div>
+
+            <!-- Global Backup Bar -->
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 transition-colors">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl">
+                        <i class="fa-solid fa-database text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white">Respaldo General del Sistema</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Exporta o importa todos los módulos y operadores en un solo archivo.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                    <button onclick="exportGlobalJSON()" class="btn-backup-custom px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center space-x-2 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Exportar Base General</span>
+                    </button>
+                    <label class="btn-backup-custom px-4 py-2 bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center space-x-2 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-upload"></i>
+                        <span>Importar Base General</span>
+                        <input type="file" id="importGlobalFileInput" accept=".json" onchange="importGlobalJSON(event)" class="hidden">
+                    </label>
+                </div>
+            </div>
+
+            <!-- 3 Main Category Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                
+                <!-- CARD 1: PASEADORES -->
+                <div onclick="requestSwitchModule('paseadores')" class="group bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between relative overflow-hidden text-center min-h-[320px]">
+                    <div class="absolute top-0 left-0 right-0 h-2 bg-emerald-500"></div>
+                    
+                    <div class="w-28 h-28 my-auto flex items-center justify-center transition-transform group-hover:scale-110">
+                        <img src="Paseador.png" alt="Paseadores" class="max-h-24 max-w-full object-contain dark:invert dark:brightness-200">
+                    </div>
+
+                    <div class="w-full space-y-3">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition">Registro de Paseadores</h3>
+                        <p class="text-xs font-semibold text-slate-400"><span id="menuCountPaseadores" class="font-bold text-slate-800 dark:text-slate-200">0</span> Registrados</p>
+                        
+                        <div class="pt-2">
+                            <span class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold text-sm rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition">
+                                Ingresar <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: ADIESTRADORES -->
+                <div onclick="requestSwitchModule('adiestradores')" class="group bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between relative overflow-hidden text-center min-h-[320px]">
+                    <div class="absolute top-0 left-0 right-0 h-2 bg-blue-500"></div>
+                    
+                    <div class="w-28 h-28 my-auto flex items-center justify-center transition-transform group-hover:scale-110">
+                        <img src="Adiestrador.png" alt="Adiestradores" class="max-h-24 max-w-full object-contain dark:invert dark:brightness-200">
+                    </div>
+
+                    <div class="w-full space-y-3">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition">Registro de Adiestradores</h3>
+                        <p class="text-xs font-semibold text-slate-400"><span id="menuCountAdiestradores" class="font-bold text-slate-800 dark:text-slate-200">0</span> Registrados</p>
+                        
+                        <div class="pt-2">
+                            <span class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 font-bold text-sm rounded-xl group-hover:bg-blue-600 group-hover:text-white transition">
+                                Ingresar <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: PERROS PPP -->
+                <div onclick="requestSwitchModule('ppp')" class="group bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-800 hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between relative overflow-hidden text-center min-h-[320px]">
+                    <div class="absolute top-0 left-0 right-0 h-2 bg-orange-500"></div>
+                    
+                    <div class="w-28 h-28 my-auto flex items-center justify-center transition-transform group-hover:scale-110">
+                        <img src="PPP.png" alt="Perros PPP" class="max-h-24 max-w-full object-contain dark:invert dark:brightness-200">
+                    </div>
+
+                    <div class="w-full space-y-3">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-orange-600 transition">Registro Perros Potencialmente Peligrosos</h3>
+                        <p class="text-xs font-semibold text-slate-400"><span id="menuCountPPP" class="font-bold text-slate-800 dark:text-slate-200">0</span> Registrados</p>
+                        
+                        <div class="pt-2">
+                            <span class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 font-bold text-sm rounded-xl group-hover:bg-orange-600 group-hover:text-white transition">
+                                Ingresar <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- MODULE DETAIL SCREEN -->
+        <main id="moduleDetailView" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+            <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-colors">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span id="moduleBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-emerald-100 text-emerald-800">Módulo</span>
+                        <h2 id="moduleTitle" class="text-xl font-bold text-slate-900 dark:text-white">Registro de Paseadores</h2>
+                    </div>
+                    <p id="moduleDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Gestión de licencias y credenciales habilitantes.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
+                    <button onclick="openFormModal()" class="px-4 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium transition flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Nuevo Registro</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter & Search Bar -->
+            <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-between items-center transition-colors">
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" oninput="filterRecords()" placeholder="Buscar en el registro..." class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#1b365d]">
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 font-medium w-full sm:w-auto text-right">
+                    Total Registrados: <span id="recordCount" class="font-bold text-slate-800 dark:text-white">0</span>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr id="tableHeader" class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
+                                <!-- Dynamic Table Headers -->
+                            </tr>
+                        </thead>
+                        <tbody id="recordsTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="p-12 text-center hidden">
+                    <i class="fa-solid fa-folder-open text-5xl text-slate-300 dark:text-slate-700 mb-3"></i>
+                    <p class="text-slate-500 dark:text-slate-400 font-medium">No se encontraron registros en este módulo.</p>
+                    <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">Haz clic en "Nuevo Registro" para agregar el primero.</p>
+                </div>
+            </div>
+
+            <!-- Preview & Credential Output Area (Oculto por defecto hasta que se selecciona un registro) -->
+            <div id="credentialSection" class="hidden bg-white dark:bg-slate-900 p-6 rounded-xl shadow-md border-2 border-banner-blue space-y-6 transition-all duration-300 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded text-[10px] font-bold uppercase">Seleccionado</span>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" id="selectedRecordTitle">Vista Previa de Credencial ID</h3>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Credencial reglamentaria generada para impresión o exportación digital.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <button onclick="exportPNG()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer">
+                            <i class="fa-solid fa-file-image"></i>
+                            <span>Descargar PNG</span>
+                        </button>
+                        <button onclick="exportPDF()" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer">
+                            <i class="fa-solid fa-file-pdf"></i>
+                            <span>Descargar PDF</span>
+                        </button>
+                        <button onclick="window.print()" class="px-3 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Imprimir</span>
+                        </button>
+                        <button onclick="closeCredentialPreview()" class="px-3 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer" title="Cerrar Vista Previa">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>Ocultar</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Printable Credential Layout -->
+                <div id="printArea" class="flex flex-col gap-6 items-center py-4 bg-slate-100 dark:bg-slate-950 p-4 rounded-xl">
+                    
+                    <!-- 1. CREDENCIAL PRINCIPAL -->
+                    <div class="official-credential-container">
+                        <div id="credBody1" class="grid grid-cols-2 gap-6 items-center">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- 2. COPIA PARA LIBRO DE ACTAS -->
+                    <div class="official-credential-container">
+                        <div id="credBody2" class="grid grid-cols-2 gap-6 items-center">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- FORM MODAL -->
+    <div id="formModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+            
+            <div class="p-5 bg-banner-blue text-white flex justify-between items-center">
+                <div>
+                    <h3 id="modalFormTitle" class="font-bold text-base">Nuevo Registro</h3>
+                    <p id="modalFormSub" class="text-xs text-blue-200">Ingresa los datos correspondientes.</p>
+                </div>
+                <button onclick="closeFormModal()" class="text-blue-200 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="recordForm" onsubmit="saveRecord(event)" class="p-6 overflow-y-auto space-y-4 flex-1">
+                <input type="hidden" id="fieldId">
+
+                <!-- Photo Upload Field -->
+                <div class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+                    <div class="w-20 h-20 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden relative flex items-center justify-center shrink-0">
+                        <img id="modalPhotoPreview" src="" class="w-full h-full object-cover hidden">
+                        <i id="modalPhotoPlaceholder" class="fa-solid fa-camera text-2xl text-slate-400"></i>
+                    </div>
+                    <div class="flex-1 space-y-1">
+                        <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Foto de Identificación / Animal</label>
+                        <input type="file" id="fieldPhoto" accept="image/*" onchange="previewPhoto(event)" class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 dark:file:bg-slate-700 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300">
+                    </div>
+                </div>
+
+                <!-- Dynamic Form Fields Container -->
+                <div id="dynamicFields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Injected by JavaScript -->
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium flex items-center space-x-2">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Guardar Registro</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- USERS MANAGEMENT MODAL -->
+    <div id="usersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-5 bg-indigo-900 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-base">Gestión de Operadores y Accesos</h3>
+                    <p class="text-xs text-indigo-200">Panel de Administración de Personal</p>
+                </div>
+                <button onclick="closeUsersModal()" class="text-indigo-200 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <form onsubmit="handleSaveUser(event)" class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <input type="hidden" id="opEditId">
+                    <h4 id="opFormTitle" class="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Crear Nuevo Operador</h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Nombre de Usuario *</label>
+                            <input type="text" id="opUser" required placeholder="Ej: mfuertes" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Apellido y Nombre *</label>
+                            <input type="text" id="opFullName" required placeholder="Ej: Marcos Fuertes" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Legajo *</label>
+                            <input type="text" id="opLegajo" required placeholder="Ej: 10423" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Rango / Rol *</label>
+                            <select id="opRole" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <option value="operator">Operario</option>
+                                <option value="admin">Administrador (Control Total)</option>
+                            </select>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Contraseña *</label>
+                            <input type="password" id="opPass" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" id="btnCancelOpEdit" onclick="resetUserForm()" class="hidden px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold hover:bg-slate-300">Cancelar</button>
+                        <button type="submit" id="btnSubmitOp" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span id="btnSubmitOpText">Registrar Nuevo Operador</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Operadores Habilitados</h4>
+                    <div id="usersListContainer" class="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+                        <!-- Inyectado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDl8KZWjH5YPSo9Vz8-YhxwblirbM-HMd0",
+            authDomain: "zoobase-mgp.firebaseapp.com",
+            projectId: "zoobase-mgp",
+            storageBucket: "zoobase-mgp.firebasestorage.app",
+            messagingSenderId: "257269111878",
+            appId: "1:257269111878:web:1cbc7d61559d5222f4fe47",
+            measurementId: "G-DQSNM3J0KD"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const dbCloud = firebase.firestore();
+
+        const SESSION_KEY = 'zoobase_session_active';
+        const CURRENT_USER_KEY = 'zoobase_current_user';
+        const THEME_KEY = 'zoobase_dark_mode';
+
+        let currentModule = 'paseadores';
+        let db = {
+            paseadores: [],
+            adiestradores: [],
+            ppp: []
+        };
+        let users = [];
+
+        const moduleConfigs = {
+            paseadores: {
+                title: "Registro de Paseadores",
+                desc: "Gestión de licencias, datos filiatorios y credenciales habilitantes.",
+                badge: "Paseadores",
+                badgeClass: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+                fields: [
+                    { id: "tramite", label: "Nº de Trámite", type: "text", required: true },
+                    { id: "nombreApellido", label: "Nombre y Apellido", type: "text", required: true },
+                    { id: "nacimiento", label: "Fecha de Nacimiento", type: "date", required: true },
+                    { id: "documento", label: "Número de Documento", type: "text", required: true },
+                    { id: "domicilio", label: "Domicilio", type: "text", required: true },
+                    { id: "telefono", label: "Teléfono", type: "text", required: true },
+                    { id: "fechaEmision", label: "Fecha de Emisión", type: "date", required: true }
+                ],
+                tableColumns: ["Trámite", "Nombre y Apellido", "Documento", "Emisión", "Acciones"]
+            },
+            adiestradores: {
+                title: "Registro de Adiestradores",
+                desc: "Gestión de licencias, datos filiatorios y credenciales para adiestradores.",
+                badge: "Adiestradores",
+                badgeClass: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300",
+                fields: [
+                    { id: "tramite", label: "Nº de Trámite", type: "text", required: true },
+                    { id: "nombreApellido", label: "Nombre y Apellido", type: "text", required: true },
+                    { id: "nacimiento", label: "Fecha de Nacimiento", type: "date", required: true },
+                    { id: "documento", label: "Número de Documento", type: "text", required: true },
+                    { id: "domicilio", label: "Domicilio", type: "text", required: true },
+                    { id: "telefono", label: "Teléfono", type: "text", required: true },
+                    { id: "fechaEmision", label: "Fecha de Emisión", type: "date", required: true }
+                ],
+                tableColumns: ["Trámite", "Nombre y Apellido", "Documento", "Emisión", "Acciones"]
+            },
+            ppp: {
+                title: "Registro Perros Potencialmente Peligrosos",
+                desc: "Control de canes considerados PPP, datos filiatorios y titulares responsables.",
+                badge: "PPP",
+                badgeClass: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
+                fields: [
+                    { id: "tramite", label: "Nº de Trámite", type: "text", required: true },
+                    { id: "chip", label: "Nº de Chip", type: "text", required: true },
+                    { id: "nombreAnimal", label: "Nombre del Animal", type: "text", required: true },
+                    { id: "nacimientoAnimal", label: "Fecha de Nac. Animal", type: "date", required: true },
+                    { id: "especieRaza", label: "Especie / Raza", type: "text", required: true },
+                    { id: "sexo", label: "Sexo", type: "text", required: true },
+                    { id: "pelaje", label: "Pelaje", type: "text", required: true },
+                    { id: "veterinario", label: "Veterinario", type: "text", required: true },
+                    { id: "matriculaVet", label: "Matrícula Vet.", type: "text", required: true },
+                    { id: "propietario", label: "Apellido y Nombre (Tenedor)", type: "text", required: true },
+                    { id: "dniPropietario", label: "Documento (Tenedor)", type: "text", required: true },
+                    { id: "nacimientoProp", label: "Fec. Nac. (Tenedor)", type: "date", required: true },
+                    { id: "domicilio", label: "Domicilio (Tenedor)", type: "text", required: true },
+                    { id: "telefono", label: "Teléfono (Tenedor)", type: "text", required: true },
+                    { id: "fechaEmision", label: "Fecha de Emisión", type: "date", required: true }
+                ],
+                tableColumns: ["Trámite", "Chip", "Animal", "Tenedor", "Emisión", "Acciones"]
+            }
+        };
+
+        window.onload = function() {
+            initTheme();
+            loadDB();
+        };
+
+        // FUNCIONES DE MODO OSCURO
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+                updateThemeIcon(true);
+            } else {
+                document.documentElement.classList.remove('dark');
+                updateThemeIcon(false);
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+            updateThemeIcon(isDark);
+        }
+
+        function updateThemeIcon(isDark) {
+            const icon = document.getElementById('darkModeIcon');
+            if (icon) {
+                icon.className = isDark ? "fa-solid fa-sun text-sm text-amber-300" : "fa-solid fa-moon text-sm";
+            }
+        }
+
+        // CARGAR DATOS Y OPERADORES DESDE GOOGLE FIRESTORE
+        function loadDB() {
+            dbCloud.collection("zoobase_data").doc("main_records").get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    db = {
+                        paseadores: data.paseadores || [],
+                        adiestradores: data.adiestradores || [],
+                        ppp: data.ppp || []
+                    };
+                    users = data.users || [];
+                }
+
+                // Si no hay usuarios en la nube, creamos el administrador por defecto
+                if (!users || users.length === 0) {
+                    users = [
+                        { id: 'usr_admin', usuario: 'mfuertes', fullName: 'Marcos Fuertes', legajo: '0001', clave: '2023', role: 'admin' }
+                    ];
+                    saveDB();
+                } else {
+                    let adminFound = users.find(x => x.usuario === 'mfuertes');
+                    if (!adminFound) {
+                        let oldAdmin = users.find(x => x.usuario === 'admin');
+                        if (oldAdmin) {
+                            oldAdmin.usuario = 'mfuertes';
+                            oldAdmin.clave = '2023';
+                            oldAdmin.fullName = 'Marcos Fuertes';
+                            saveDB();
+                        }
+                    }
+                }
+
+                updateMenuCounts();
+                checkSession();
+                if (!document.getElementById('moduleDetailView').classList.contains('hidden')) {
+                    renderTable();
+                }
+            }).catch((error) => {
+                console.error("Error al cargar la base de datos de Firebase:", error);
+                showToast("Error al conectar con la nube de Google", "error");
+            });
+        }
+
+        // GUARDAR TODO (REGISTROS Y OPERADORES) EN GOOGLE FIRESTORE
+        function saveDB() {
+            const payload = {
+                paseadores: db.paseadores,
+                adiestradores: db.adiestradores,
+                ppp: db.ppp,
+                users: users
+            };
+
+            dbCloud.collection("zoobase_data").doc("main_records").set(payload)
+            .then(() => {
+                updateMenuCounts();
+            })
+            .catch((error) => {
+                console.error("Error al guardar en Firebase:", error);
+                showToast("Error al guardar en la nube", "error");
+            });
+        }
+
+        function checkSession() {
+            const isActive = sessionStorage.getItem(SESSION_KEY);
+            const currentUsername = sessionStorage.getItem(CURRENT_USER_KEY);
+
+            if (isActive === 'true' && currentUsername) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('appContainer').classList.add('flex');
+
+                const loggedUser = users.find(x => x.usuario === currentUsername);
+
+                const btnManage = document.getElementById('btnManageUsers');
+                if (loggedUser && loggedUser.role === 'admin') {
+                    btnManage.classList.remove('hidden');
+                } else {
+                    btnManage.classList.add('hidden');
+                }
+
+                showMainMenu();
+            } else {
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appContainer').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value.trim();
+
+            const found = users.find(x => x.usuario === u && x.clave === p);
+
+            const errorBox = document.getElementById('loginError');
+            const successBox = document.getElementById('loginSuccessBox');
+            const successIcon = document.getElementById('loginSuccessIcon');
+            const successText = document.getElementById('loginSuccessText');
+            const iconContainer = document.getElementById('loginIconContainer');
+            const submitBtn = document.getElementById('btnLoginSubmit');
+
+            errorBox.classList.add('hidden');
+
+            successBox.className = "fixed z-50 card-3d-relief bg-gradient-to-br from-white to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200/80 dark:border-slate-700 px-8 py-6 rounded-2xl flex flex-col items-center justify-center space-y-3 transform scale-95 transition-all duration-300";
+            successBox.classList.remove('hidden');
+            successIcon.className = "fa-solid fa-circle-notch fa-spin text-slate-600 dark:text-slate-300 text-xl";
+            successText.innerText = "Verificando credenciales en el sistema...";
+            iconContainer.className = "w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shadow-inner transition-colors duration-300";
+            
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            if (found) {
+                setTimeout(() => {
+                    successBox.className = "fixed z-50 card-3d-relief bg-gradient-to-br from-emerald-50 to-emerald-100/80 dark:from-emerald-950 dark:to-emerald-900 border border-emerald-300 dark:border-emerald-700 px-8 py-6 rounded-2xl flex flex-col items-center justify-center space-y-3 transform scale-100 transition-all duration-300 shadow-xl";
+                    iconContainer.className = "w-12 h-12 rounded-full bg-emerald-200 dark:bg-emerald-800 flex items-center justify-center shadow-inner transition-colors duration-300";
+                    successIcon.className = "fa-solid fa-check text-emerald-700 dark:text-emerald-200 text-xl font-bold";
+                    successText.innerText = "Ingreso correcto al sistema";
+                }, 1100);
+
+                setTimeout(() => {
+                    sessionStorage.setItem(SESSION_KEY, 'true');
+                    sessionStorage.setItem(CURRENT_USER_KEY, found.usuario);
+                    checkSession();
+                    successBox.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                    document.getElementById('loginUser').value = '';
+                    document.getElementById('loginPass').value = '';
+
+                    triggerWelcomeModal(found.fullName || found.usuario);
+                }, 2100);
+
+            } else {
+                setTimeout(() => {
+                    successBox.className = "fixed z-50 card-3d-relief bg-gradient-to-br from-red-50 to-red-100/80 dark:from-red-950 dark:to-red-900 border border-red-300 dark:border-red-700 px-8 py-6 rounded-2xl flex flex-col items-center justify-center space-y-3 transform scale-100 transition-all duration-300 shadow-xl";
+                    iconContainer.className = "w-12 h-12 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center shadow-inner transition-colors duration-300";
+                    successIcon.className = "fa-solid fa-xmark text-red-700 dark:text-red-200 text-2xl font-bold";
+                    successText.innerText = "Usuario o contraseña incorrectos";
+                }, 1100);
+
+                setTimeout(() => {
+                    successBox.classList.add('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    errorBox.classList.add('hidden');
+                }, 2600);
+            }
+        }
+
+        function triggerWelcomeModal(displayName) {
+            const modal = document.getElementById('welcomeBannerModal');
+            const cardContent = document.getElementById('welcomeCardContent');
+            const title = document.getElementById('welcomeModalTitle');
+            const sub = document.getElementById('welcomeModalSub');
+            const iconWrapper = document.getElementById('welcomeModalIconWrapper');
+            const icon = document.getElementById('welcomeModalIcon');
+            const spinner = document.getElementById('welcomeSpinner');
+            const spinnerLabel = document.getElementById('welcomeSpinnerLabel');
+
+            iconWrapper.className = "w-20 h-20 rounded-2xl bg-banner-blue text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+            icon.className = "fa-solid fa-shield-dog text-4xl";
+            title.innerText = `¡Bienvenido, ${displayName}!`;
+            sub.innerText = "Zoonosis y Bienestar Animal";
+            spinner.style.display = "block";
+            spinnerLabel.innerText = "Cargando módulos...";
+
+            modal.classList.remove('hidden', 'opacity-0');
+            modal.classList.add('opacity-100');
+            setTimeout(() => {
+                cardContent.classList.remove('scale-75');
+                cardContent.classList.add('scale-100');
+            }, 50);
+
+            setTimeout(() => {
+                cardContent.classList.remove('scale-100');
+                cardContent.classList.add('scale-75');
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 500);
+            }, 2500);
+        }
+
+        function handleLogout() {
+            const modal = document.getElementById('welcomeBannerModal');
+            const cardContent = document.getElementById('welcomeCardContent');
+            const title = document.getElementById('welcomeModalTitle');
+            const sub = document.getElementById('welcomeModalSub');
+            const iconWrapper = document.getElementById('welcomeModalIconWrapper');
+            const icon = document.getElementById('welcomeModalIcon');
+            const spinner = document.getElementById('welcomeSpinner');
+            const spinnerLabel = document.getElementById('welcomeSpinnerLabel');
+
+            iconWrapper.className = "w-20 h-20 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+            icon.className = "fa-solid fa-right-from-bracket text-3xl";
+            title.innerText = "Cerrando sesión...";
+            sub.innerText = "Guardando estado y saliendo del sistema";
+            spinner.style.display = "block";
+            spinnerLabel.innerText = "Finalizando sesión segura...";
+
+            modal.classList.remove('hidden', 'opacity-0');
+            modal.classList.add('opacity-100');
+            setTimeout(() => {
+                cardContent.classList.remove('scale-75');
+                cardContent.classList.add('scale-100');
+            }, 50);
+
+            setTimeout(() => {
+                sessionStorage.removeItem(SESSION_KEY);
+                sessionStorage.removeItem(CURRENT_USER_KEY);
+                
+                const loginUserEl = document.getElementById('loginUser');
+                const loginPassEl = document.getElementById('loginPass');
+                if (loginUserEl) loginUserEl.value = '';
+                if (loginPassEl) loginPassEl.value = '';
+
+                checkSession();
+                
+                cardContent.classList.remove('scale-100');
+                cardContent.classList.add('scale-75');
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 500);
+            }, 1800);
+        }
+
+        function openUsersModal() {
+            resetUserForm();
+            renderUsersList();
+            document.getElementById('usersModal').classList.remove('hidden');
+        }
+
+        function closeUsersModal() {
+            document.getElementById('usersModal').classList.add('hidden');
+        }
+
+        function resetUserForm() {
+            document.getElementById('opEditId').value = '';
+            document.getElementById('opUser').value = '';
+            document.getElementById('opFullName').value = '';
+            document.getElementById('opLegajo').value = '';
+            document.getElementById('opRole').value = 'operator';
+            document.getElementById('opPass').value = '';
+            document.getElementById('opFormTitle').innerText = 'Crear Nuevo Operador';
+            document.getElementById('btnSubmitOpText').innerText = 'Registrar Nuevo Operador';
+            document.getElementById('btnCancelOpEdit').classList.add('hidden');
+        }
+
+        function renderUsersList() {
+            const container = document.getElementById('usersListContainer');
+            container.innerHTML = '';
+
+            users.forEach(usr => {
+                const div = document.createElement('div');
+                div.className = "p-3 flex items-center justify-between text-sm";
+                div.innerHTML = `
+                    <div class="space-y-0.5">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-slate-800 dark:text-slate-200">${usr.fullName || usr.usuario}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded ${usr.role === 'admin' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'}">
+                                ${usr.role === 'admin' ? 'Administrador' : 'Operario'}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">Usuario: <strong>${usr.usuario}</strong> | Legajo: <strong>${usr.legajo || 'S/N'}</strong></p>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="editUser('${usr.id}')" class="text-slate-400 hover:text-blue-600 p-1.5" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${usr.usuario !== 'mfuertes' ? `<button onclick="deleteUser('${usr.id}')" class="text-slate-400 hover:text-red-600 p-1.5" title="Eliminar"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-[10px] text-slate-400 italic px-1">Principal</span>'}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function handleSaveUser(e) {
+            e.preventDefault();
+            const editId = document.getElementById('opEditId').value;
+            const u = document.getElementById('opUser').value.trim();
+            const fn = document.getElementById('opFullName').value.trim();
+            const leg = document.getElementById('opLegajo').value.trim();
+            const rol = document.getElementById('opRole').value;
+            const p = document.getElementById('opPass').value.trim();
+
+            if (editId) {
+                const idx = users.findIndex(x => x.id === editId);
+                if (idx !== -1) {
+                    if (users.some(x => x.usuario === u && x.id !== editId)) {
+                        alert("El nombre de usuario ya está en uso por otro operador.");
+                        return;
+                    }
+                    users[idx].usuario = u;
+                    users[idx].fullName = fn;
+                    users[idx].legajo = leg;
+                    users[idx].role = rol;
+                    if (p) users[idx].clave = p;
+
+                    saveDB();
+                    showToast("Operador actualizado en la nube", "success");
+                    resetUserForm();
+                    renderUsersList();
+                }
+            } else {
+                if (users.some(x => x.usuario === u)) {
+                    alert("El nombre de usuario ya existe.");
+                    return;
+                }
+
+                users.push({
+                    id: 'usr_' + Date.now(),
+                    usuario: u,
+                    fullName: fn,
+                    legajo: leg,
+                    clave: p,
+                    role: rol
+                });
+
+                saveDB();
+                showToast("Operador creado en la nube", "success");
+                resetUserForm();
+                renderUsersList();
+            }
+        }
+
+        function editUser(id) {
+            const usr = users.find(x => x.id === id);
+            if (usr) {
+                document.getElementById('opEditId').value = usr.id;
+                document.getElementById('opUser').value = usr.usuario;
+                document.getElementById('opFullName').value = usr.fullName || '';
+                document.getElementById('opLegajo').value = usr.legajo || '';
+                document.getElementById('opRole').value = usr.role || 'operator';
+                document.getElementById('opPass').value = usr.clave || '';
+                
+                document.getElementById('opFormTitle').innerText = 'Editar Operador';
+                document.getElementById('btnSubmitOpText').innerText = 'Guardar Cambios';
+                document.getElementById('btnCancelOpEdit').classList.remove('hidden');
+            }
+        }
+
+        function deleteUser(id) {
+            if (confirm("¿Estás seguro de eliminar este operador?")) {
+                users = users.filter(x => x.id !== id);
+                saveDB();
+                renderUsersList();
+                showToast("Operador eliminado", "error");
+            }
+        }
+
+        function updateMenuCounts() {
+            document.getElementById('menuCountPaseadores').innerText = db.paseadores.length;
+            document.getElementById('menuCountAdiestradores').innerText = db.adiestradores.length;
+            document.getElementById('menuCountPPP').innerText = db.ppp.length;
+        }
+
+        function showMainMenu() {
+            document.getElementById('mainMenuView').classList.remove('hidden');
+            document.getElementById('moduleDetailView').classList.add('hidden');
+            document.getElementById('btnBackToMenu').classList.add('hidden');
+            document.getElementById('credentialSection').classList.add('hidden');
+        }
+
+        function requestReturnToMainMenu() {
+            const modal = document.getElementById('welcomeBannerModal');
+            const cardContent = document.getElementById('welcomeCardContent');
+            const title = document.getElementById('welcomeModalTitle');
+            const sub = document.getElementById('welcomeModalSub');
+            const iconWrapper = document.getElementById('welcomeModalIconWrapper');
+            const icon = document.getElementById('welcomeModalIcon');
+            const spinner = document.getElementById('welcomeSpinner');
+            const spinnerLabel = document.getElementById('welcomeSpinnerLabel');
+
+            iconWrapper.className = "w-20 h-20 rounded-2xl bg-banner-blue text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+            icon.className = "fa-solid fa-grip text-4xl";
+            title.innerText = "Regresando al panel general...";
+            sub.innerText = "Zoonosis y Bienestar Animal";
+            spinner.style.display = "block";
+            spinnerLabel.innerText = "Cargando menú principal...";
+
+            modal.classList.remove('hidden', 'opacity-0');
+            modal.classList.add('opacity-100');
+            setTimeout(() => {
+                cardContent.classList.remove('scale-75');
+                cardContent.classList.add('scale-100');
+            }, 50);
+
+            setTimeout(() => {
+                cardContent.classList.remove('scale-100');
+                cardContent.classList.add('scale-75');
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    showMainMenu();
+                }, 500);
+            }, 1800);
+        }
+
+        function requestSwitchModule(modKey) {
+            const modal = document.getElementById('welcomeBannerModal');
+            const cardContent = document.getElementById('welcomeCardContent');
+            const title = document.getElementById('welcomeModalTitle');
+            const sub = document.getElementById('welcomeModalSub');
+            const iconWrapper = document.getElementById('welcomeModalIconWrapper');
+            const icon = document.getElementById('welcomeModalIcon');
+            const spinner = document.getElementById('welcomeSpinner');
+            const spinnerLabel = document.getElementById('welcomeSpinnerLabel');
+
+            let moduloNombreLargo = "registro de paseadores";
+            let iconoClase = "fa-solid fa-dog text-4xl";
+            let colorClase = "w-20 h-20 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+
+            if (modKey === 'paseadores') {
+                moduloNombreLargo = "registro de paseadores";
+                iconoClase = "fa-solid fa-person-walking text-4xl";
+                colorClase = "w-20 h-20 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+            } else if (modKey === 'adiestradores') {
+                moduloNombreLargo = "registro de adiestradores";
+                iconoClase = "fa-solid fa-graduation-cap text-4xl";
+                colorClase = "w-20 h-20 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+            } else if (modKey === 'ppp') {
+                moduloNombreLargo = "registro perros potencialmente peligrosos";
+                iconoClase = "fa-solid fa-shield-dog text-4xl";
+                colorClase = "w-20 h-20 rounded-2xl bg-orange-600 text-white flex items-center justify-center shadow-xl transition-colors duration-300";
+            }
+
+            iconWrapper.className = colorClase;
+            icon.className = iconoClase;
+            title.innerText = `Cargando ${moduloNombreLargo}...`;
+            sub.innerText = "Zoonosis y Bienestar Animal";
+            spinner.style.display = "block";
+            spinnerLabel.innerText = "Sincronizando con la nube de Google...";
+
+            modal.classList.remove('hidden', 'opacity-0');
+            modal.classList.add('opacity-100');
+            setTimeout(() => {
+                cardContent.classList.remove('scale-75');
+                cardContent.classList.add('scale-100');
+            }, 50);
+
+            loadDB();
+
+            setTimeout(() => {
+                cardContent.classList.remove('scale-100');
+                cardContent.classList.add('scale-75');
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    switchModule(modKey);
+                }, 500);
+            }, 2500);
+        }
+
+        function switchModule(modKey) {
+            currentModule = modKey;
+            const config = moduleConfigs[modKey];
+
+            document.getElementById('mainMenuView').classList.add('hidden');
+            document.getElementById('moduleDetailView').classList.remove('hidden');
+            document.getElementById('btnBackToMenu').classList.remove('hidden');
+            document.getElementById('credentialSection').classList.add('hidden');
+
+            document.getElementById('moduleBadge').innerText = config.badge;
+            document.getElementById('moduleBadge').className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${config.badgeClass}`;
+            document.getElementById('moduleTitle').innerText = config.title;
+            document.getElementById('moduleDesc').innerText = config.desc;
+
+            renderTable();
+        }
+
+        function renderTable(filteredList = null) {
+            const config = moduleConfigs[currentModule];
+            const records = filteredList || db[currentModule];
+
+            document.getElementById('recordCount').innerText = records.length;
+
+            const headerTr = document.getElementById('tableHeader');
+            headerTr.innerHTML = config.tableColumns.map(col => `<th class="px-4 py-3">${col}</th>`).join('');
+
+            const tbody = document.getElementById('recordsTableBody');
+            tbody.innerHTML = '';
+
+            const emptyState = document.getElementById('emptyState');
+
+            if (records.length === 0) {
+                emptyState.classList.remove('hidden');
+                document.getElementById('credentialSection').classList.add('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            records.forEach((rec, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer";
+                tr.onclick = () => selectRecord(rec);
+
+                let cellsHtml = '';
+                if (currentModule === 'paseadores' || currentModule === 'adiestradores') {
+                    cellsHtml = `
+                        <td class="px-4 py-3 font-mono font-bold text-xs text-slate-700 dark:text-slate-300">${rec.tramite || '-'}</td>
+                        <td class="px-4 py-3 font-medium text-slate-900 dark:text-white">${rec.nombreApellido || '-'}</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">${rec.documento || '-'}</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">${rec.fechaEmision || '-'}</td>
+                    `;
+                } else if (currentModule === 'ppp') {
+                    cellsHtml = `
+                        <td class="px-4 py-3 font-mono font-bold text-xs text-slate-700 dark:text-slate-300">${rec.tramite || '-'}</td>
+                        <td class="px-4 py-3 font-mono text-xs text-slate-600 dark:text-slate-400">${rec.chip || '-'}</td>
+                        <td class="px-4 py-3 font-medium text-slate-900 dark:text-white">${rec.nombreAnimal || '-'}</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">${rec.propietario || '-'}</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">${rec.fechaEmision || '-'}</td>
+                    `;
+                }
+
+                cellsHtml += `
+                    <td class="px-4 py-3 text-right space-x-2" onclick="event.stopPropagation()">
+                        <button onclick="editRecord('${rec.id}')" class="text-slate-400 hover:text-blue-600 px-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteRecord('${rec.id}')" class="text-slate-400 hover:text-red-600 px-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+
+                tr.innerHTML = cellsHtml;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterRecords() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const list = db[currentModule];
+            const filtered = list.filter(item => {
+                return Object.values(item).some(val => String(val).toLowerCase().includes(query));
+            });
+            renderTable(filtered);
+            document.getElementById('credentialSection').classList.add('hidden');
+        }
+
+        function openFormModal(editId = null) {
+            const config = moduleConfigs[currentModule];
+            document.getElementById('modalFormTitle').innerText = editId ? 'Editar Registro' : 'Nuevo Registro';
+            document.getElementById('modalFormSub').innerText = config.title;
+            document.getElementById('fieldId').value = '';
+            document.getElementById('fieldPhoto').value = '';
+            document.getElementById('modalPhotoPreview').src = '';
+            document.getElementById('modalPhotoPreview').classList.add('hidden');
+            document.getElementById('modalPhotoPlaceholder').classList.remove('hidden');
+
+            const container = document.getElementById('dynamicFields');
+            container.innerHTML = '';
+
+            config.fields.forEach(f => {
+                const div = document.createElement('div');
+                div.className = "space-y-1";
+                div.innerHTML = `
+                    <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">${f.label} ${f.required ? '*' : ''}</label>
+                    <input type="${f.type}" id="input_${f.id}" ${f.required ? 'required' : ''} class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                `;
+                container.appendChild(div);
+            });
+
+            if (editId) {
+                const item = db[currentModule].find(x => x.id === editId);
+                if (item) {
+                    document.getElementById('fieldId').value = item.id;
+                    config.fields.forEach(f => {
+                        const el = document.getElementById(`input_${f.id}`);
+                        if (el && item[f.id] !== undefined) {
+                            el.value = item[f.id];
+                        }
+                    });
+                    if (item.photo) {
+                        document.getElementById('modalPhotoPreview').src = item.photo;
+                        document.getElementById('modalPhotoPreview').classList.remove('hidden');
+                        document.getElementById('modalPhotoPlaceholder').classList.add('hidden');
+                    }
+                }
+            } else {
+                const fechaHoy = new Date().toISOString().slice(0, 10);
+                const elEmision = document.getElementById('input_fechaEmision');
+                if (elEmision) {
+                    elEmision.value = fechaHoy;
+                }
+            }
+
+            document.getElementById('formModal').classList.remove('hidden');
+        }
+
+        function closeFormModal() {
+            document.getElementById('formModal').classList.add('hidden');
+        }
+
+        function previewPhoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('modalPhotoPreview').src = e.target.result;
+                    document.getElementById('modalPhotoPreview').classList.remove('hidden');
+                    document.getElementById('modalPhotoPlaceholder').classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveRecord(e) {
+            e.preventDefault();
+            const config = moduleConfigs[currentModule];
+            const editId = document.getElementById('fieldId').value;
+
+            const newItem = {
+                id: editId || 'ID_' + Date.now(),
+                createdAt: new Date().toISOString()
+            };
+
+            config.fields.forEach(f => {
+                newItem[f.id] = document.getElementById(`input_${f.id}`).value;
+            });
+
+            const photoPreview = document.getElementById('modalPhotoPreview').src;
+            newItem.photo = photoPreview && !photoPreview.includes('placeholder') ? photoPreview : 'https://placehold.co/150x150/e2e8f0/64748b?text=FOTO';
+
+            if (editId) {
+                const idx = db[currentModule].findIndex(x => x.id === editId);
+                if (idx !== -1) db[currentModule][idx] = newItem;
+                showToast("Registro actualizado en la nube", "success");
+            } else {
+                db[currentModule].unshift(newItem);
+                showToast("Registro creado en la nube", "success");
+            }
+
+            saveDB();
+            closeFormModal();
+            renderTable();
+        }
+
+        function editRecord(id) {
+            openFormModal(id);
+        }
+
+        function deleteRecord(id) {
+            if (confirm("¿Estás seguro de eliminar este registro?")) {
+                db[currentModule] = db[currentModule].filter(x => x.id !== id);
+                saveDB();
+                renderTable();
+                document.getElementById('credentialSection').classList.add('hidden');
+                showToast("Registro eliminado", "error");
+            }
+        }
+
+        function closeCredentialPreview() {
+            document.getElementById('credentialSection').classList.add('hidden');
+        }
+
+        function selectRecord(rec) {
+            if (!rec) return;
+
+            const credSection = document.getElementById('credentialSection');
+            credSection.classList.remove('hidden');
+            credSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            const titleLabel = rec.nombreApellido || rec.nombreAnimal || rec.tramite || 'Credencial';
+            document.getElementById('selectedRecordTitle').innerText = `Credencial: ${titleLabel}`;
+
+            function formatFecha(fechaStr) {
+                if (!fechaStr) return '-';
+                if (fechaStr.includes('-')) {
+                    const partes = fechaStr.split('-');
+                    if (partes.length === 3) return `${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+                return fechaStr;
+            }
+
+            const fechaEmisionFormateada = formatFecha(rec.fechaEmision);
+            const textoFechaLugar = `Mar del plata, ${fechaEmisionFormateada}`;
+
+            if (currentModule === 'paseadores') {
+                const tituloModulo = "Registro de Paseadores Caninos";
+                const textoNorma = "Acompañada del DNI del titular, la presente credencial, certifica el registro del mismo como paseador de canes en el Partido de General Pueyrredón. (Art. 20 Cap IV. Ordenanza 22.031)";
+                const nombreTarjeta = "REPAC";
+                const subDatos = "Datos del paseador:";
+                const tramiteStr = rec.tramite ? `#${rec.tramite}` : '#00000';
+
+                const htmlCard = (isCopy) => `
+                    <div class="space-y-4 pr-4 border-r border-slate-300">
+                        <div>
+                            ${isCopy ? `<div class="flex items-center space-x-2 mb-1"><span class="bg-slate-900 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">TRÁMITE</span><span class="text-xs font-mono font-bold text-slate-800">${tramiteStr}</span></div>` : ''}
+                            <h3 class="text-base font-black text-slate-900">${tituloModulo}</h3>
+                            <p class="text-[10px] text-slate-600 leading-tight mt-1">${textoNorma}</p>
+                        </div>
+                        <div class="pt-6 text-center">
+                            <div class="border-b border-slate-400 mx-auto w-48 pb-1"></div>
+                            <span class="text-[10px] font-medium text-slate-500">Firma y sello de la autoridad</span>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200">
+                            <p class="text-[10px] font-bold uppercase text-slate-900">CENTRO MUNICIPAL DE ZOONOSIS</p>
+                            <p class="text-[10px] text-slate-600 mt-0.5">${textoFechaLugar}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 pl-2">
+                        <div class="border-b-2 border-blue-900 pb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ZOONOSIS</p>
+                                    <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">Y BIENESTAR</p>
+                                    <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ANIMAL</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <img src="saludmdp.png" alt="Salud Mar del Plata" class="h-8 w-auto object-contain">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-wider">${nombreTarjeta}</h2>
+                            <p class="text-[11px] font-bold text-slate-700">${subDatos}</p>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Nombre y Apellido:</span> <span class="text-slate-900 font-medium">${rec.nombreApellido || '-'}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Fecha de Nacimiento:</span> <span class="text-slate-900">${formatFecha(rec.nacimiento)}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Nro de documento:</span> <span class="text-slate-900">${rec.documento || '-'}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Domicilio:</span> <span class="text-slate-900">${rec.domicilio || '-'}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Teléfono:</span> <span class="text-slate-900">${rec.telefono || '-'}</span></div>
+                        </div>
+                        <p class="text-[9px] text-slate-500 pt-1">${isCopy ? 'Constancia de Registro Interno - Libro de Actas.' : 'Credencial Válida por dos años a partir de la fecha impresa.'}</p>
+                    </div>
+                `;
+
+                document.getElementById('credBody1').innerHTML = htmlCard(false);
+                document.getElementById('credBody2').innerHTML = htmlCard(true);
+
+            } else if (currentModule === 'adiestradores') {
+                const tituloModulo = "Registro de Adiestradores Caninos";
+                const textoNorma = "Acompañada del DNI del titular, la presente credencial, certifica el registro del mismo como adiestrador de canes en el Partido de General Pueyrredón. (Art. 20 Cap IV. Ordenanza 22.031)";
+                const nombreTarjeta = "RAC";
+                const subDatos = "Datos del adiestrador:";
+                const tramiteStr = rec.tramite ? `#${rec.tramite}` : '#00000';
+
+                const htmlCard = (isCopy) => `
+                    <div class="space-y-4 pr-4 border-r border-slate-300">
+                        <div>
+                            ${isCopy ? `<div class="flex items-center space-x-2 mb-1"><span class="bg-slate-900 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">TRÁMITE</span><span class="text-xs font-mono font-bold text-slate-800">${tramiteStr}</span></div>` : ''}
+                            <h3 class="text-base font-black text-slate-900">${tituloModulo}</h3>
+                            <p class="text-[10px] text-slate-600 leading-tight mt-1">${textoNorma}</p>
+                        </div>
+                        <div class="pt-6 text-center">
+                            <div class="border-b border-slate-400 mx-auto w-48 pb-1"></div>
+                            <span class="text-[10px] font-medium text-slate-500">Firma y sello de la autoridad</span>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200">
+                            <p class="text-[10px] font-bold uppercase text-slate-900">CENTRO MUNICIPAL DE ZOONOSIS</p>
+                            <p class="text-[10px] text-slate-600 mt-0.5">${textoFechaLugar}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 pl-2">
+                        <div class="border-b-2 border-blue-900 pb-2">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ZOONOSIS</p>
+                                    <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">Y BIENESTAR</p>
+                                    <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ANIMAL</p>
+                                </div>
+                                <div class="flex items-center">
+                                    <img src="saludmdp.png" alt="Salud Mar del Plata" class="h-8 w-auto object-contain">
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900 tracking-wider">${nombreTarjeta}</h2>
+                            <p class="text-[11px] font-bold text-slate-700">${subDatos}</p>
+                        </div>
+                        <div class="space-y-1 text-xs">
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Nombre y Apellido:</span> <span class="text-slate-900 font-medium">${rec.nombreApellido || '-'}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Fecha de Nacimiento:</span> <span class="text-slate-900">${formatFecha(rec.nacimiento)}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Nro de documento:</span> <span class="text-slate-900">${rec.documento || '-'}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Domicilio:</span> <span class="text-slate-900">${rec.domicilio || '-'}</span></div>
+                            <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Teléfono:</span> <span class="text-slate-900">${rec.telefono || '-'}</span></div>
+                        </div>
+                        <p class="text-[9px] text-slate-500 pt-1">${isCopy ? 'Constancia de Registro Interno - Libro de Actas.' : 'Credencial Válida por dos años a partir de la fecha impresa.'}</p>
+                    </div>
+                `;
+
+                document.getElementById('credBody1').innerHTML = htmlCard(false);
+                document.getElementById('credBody2').innerHTML = htmlCard(true);
+
+            } else if (currentModule === 'ppp') {
+                const htmlPppCard = (isCopy) => `
+                    <div class="space-y-2 pr-4 border-r border-slate-300 text-xs flex flex-col justify-between h-full min-h-[220px]">
+                        <div>
+                            <div class="border-b-2 border-blue-900 pb-1">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ZOONOSIS</p>
+                                        <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">Y BIENESTAR</p>
+                                        <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ANIMAL</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <img src="saludmdp.png" alt="Salud Mar del Plata" class="h-8 w-auto object-contain">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-1">
+                                <h3 class="text-sm font-black text-slate-900">Registro Municipal Canino REMCA</h3>
+                                ${isCopy ? `<p class="text-[10px] font-mono font-bold text-slate-800 mt-0.5">Nº TRÁMITE: #${rec.tramite || '00000'}</p>` : `<p class="text-[11px] font-bold text-slate-800 mt-0.5">Microchip N°: <span class="font-mono font-normal">${rec.chip || '-'}</span></p>`}
+                            </div>
+                            <div class="space-y-0.5 text-[11px] mt-1">
+                                <div><span class="font-bold">Nombre:</span> ${rec.nombreAnimal || '-'}</div>
+                                <div><span class="font-bold">Fec. Nac. Animal:</span> ${formatFecha(rec.nacimientoAnimal)}</div>
+                                <div><span class="font-bold">Especie/Raza:</span> ${rec.especieRaza || '-'}</div>
+                                <div class="flex gap-4">
+                                    <div><span class="font-bold">Sexo:</span> ${rec.sexo || '-'}</div>
+                                    <div><span class="font-bold">Pelaje:</span> ${rec.pelaje || '-'}</div>
+                                </div>
+                                <div><span class="font-bold">Veterinario:</span> ${rec.veterinario || '-'}</div>
+                                <div><span class="font-bold">Matricula:</span> ${rec.matriculaVet || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 text-[10px] text-slate-600">
+                            ${textoFechaLugar}
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pl-2 text-xs flex flex-col justify-between h-full min-h-[220px]">
+                        <div>
+                            <div class="border-b-2 border-blue-900 pb-1">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ZOONOSIS</p>
+                                        <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">Y BIENESTAR</p>
+                                        <p class="text-[9px] font-black uppercase text-indigo-900 tracking-tight leading-none">ANIMAL</p>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <img src="saludmdp.png" alt="Salud Mar del Plata" class="h-8 w-auto object-contain">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-1">
+                                <h2 class="text-xs font-black uppercase text-slate-900">${isCopy ? 'TALON DE CONTROL MUNICIPAL' : 'Zoonosis y Bienestar Animal – MGP'}</h2>
+                                <p class="text-[9px] font-bold text-slate-500">${isCopy ? 'DATOS TENEDOR RESPONSABLE' : 'CREDENCIAL'}</p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-bold text-slate-700 mt-1">Datos del tenedor responsable:</p>
+                            </div>
+                            <div class="space-y-1 text-[11px] mt-1">
+                                <div><span class="font-bold">Apellido y nombre:</span> ${rec.propietario || '-'}</div>
+                                <div><span class="font-bold">Documento:</span> ${rec.dniPropietario || '-'}</div>
+                                <div><span class="font-bold">Fecha de nacimiento:</span> ${formatFecha(rec.nacimientoProp)}</div>
+                                <div><span class="font-bold">Domicilio:</span> ${rec.domicilio || '-'}</div>
+                                <div><span class="font-bold">Teléfono:</span> ${rec.telefono || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 pb-1 flex justify-end">
+                            <div class="text-center w-40">
+                                <div class="border-b border-slate-400 mx-auto w-full pb-1"></div>
+                                <span class="text-[9px] font-medium text-slate-500">${isCopy ? 'Firma del tenedor responsable' : 'Firma y sello autoridad'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('credBody1').innerHTML = htmlPppCard(false);
+                document.getElementById('credBody2').innerHTML = htmlPppCard(true);
+            }
+        }
+
+        function exportGlobalJSON() {
+            const globalData = {
+                database: db,
+                users: users
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalData, null, 2));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `zoobase_backup_general_${new Date().toISOString().slice(0,10)}.json`);
+            dlAnchorElem.click();
+            showToast("Base general exportada con éxito", "success");
+        }
+
+        function importGlobalJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.database && parsed.database.paseadores) {
+                        db = parsed.database;
+                        if (parsed.users && Array.isArray(parsed.users)) {
+                            users = parsed.users;
+                        }
+                        saveDB();
+                        switchModule(currentModule);
+                        showToast("Base general importada y sincronizada", "success");
+                    } else if (parsed.paseadores && parsed.adiestradores && parsed.ppp) {
+                        db = parsed;
+                        saveDB();
+                        switchModule(currentModule);
+                        showToast("Registros importados y sincronizados", "success");
+                    } else {
+                        alert("El archivo JSON no tiene el formato válido.");
+                    }
+                } catch (err) {
+                    alert("Error al leer el archivo JSON.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function exportPNG() {
+            const printArea = document.getElementById('printArea');
+            html2canvas(printArea, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `credenciales_${currentModule}_${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast("Credencial descargada como PNG", "success");
+            });
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const printArea = document.getElementById('printArea');
+            html2canvas(printArea, { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('portrait', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth - 20, pdfHeight);
+                pdf.save(`credenciales_${currentModule}_${Date.now()}.pdf`);
+                showToast("Credencial descargada como PDF", "success");
+            });
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            if (type === 'success') {
+                toastIcon.className = "fa-solid fa-circle-check text-emerald-400";
+            } else {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-red-400";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
