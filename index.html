@@ -1351,8 +1351,30 @@
                 return fechaStr;
             }
 
-            const fechaEmisionFormateada = formatFecha(rec.fechaEmision);
-            const textoFechaLugar = `Mar del plata, ${fechaEmisionFormateada}`;
+            // Función para transformar la fecha de emisión en formato de letras (ej: "23 de octubre de 2026")
+            function formatFechaLetras(fechaStr) {
+                if (!fechaStr) return '-';
+                if (fechaStr.includes('-')) {
+                    const partes = fechaStr.split('-'); // [AÑO, MES, DÍA]
+                    if (partes.length === 3) {
+                        const anio = partes[0];
+                        const mesNum = parseInt(partes[1], 10);
+                        const dia = parseInt(partes[2], 10);
+                        
+                        const meses = [
+                            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+                            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+                        ];
+
+                        const mesTexto = meses[mesNum - 1] || partes[1];
+                        return `${dia} de ${mesTexto} de ${anio}`;
+                    }
+                }
+                return fechaStr;
+            }
+
+            const fechaEmisionLetras = formatFechaLetras(rec.fechaEmision);
+            const textoFechaLugar = `Mar del Plata, ${fechaEmisionLetras}`;
 
             if (currentModule === 'paseadores') {
                 const tituloModulo = "Registro de Paseadores Caninos";
