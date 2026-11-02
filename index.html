@@ -133,7 +133,8 @@
                     <div class="inline-flex p-3 bg-banner-blue text-white rounded-2xl shadow-lg mb-2">
                         <i class="fa-solid fa-dog text-2xl"></i>
                     </div>
-                    <h1 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">ZooBase Prueba Piloto</h1>
+                    <h1 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">ZooBase</h1>
+                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Zoonosis y Bienestar Animal</p>
                     <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Municipalidad de General Pueyrredon</p>
                     <div class="w-10 h-1 bg-banner-blue mx-auto mt-3 rounded-full"></div>
                 </div>
@@ -185,7 +186,7 @@
                     <i id="welcomeModalIcon" class="fa-solid fa-shield-dog text-4xl"></i>
                 </div>
                 <div class="text-center space-y-2">
-                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Zoobase MGP Prueba Piloto</h3>
+                    <h3 class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Zoobase MGP</h3>
                     <h2 id="welcomeModalTitle" class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">¡Bienvenido!</h2>
                     <p id="welcomeModalSub" class="text-sm text-slate-500 dark:text-slate-400 font-medium pt-1">Zoonosis y Bienestar Animal</p>
                 </div>
@@ -204,8 +205,8 @@
                         <i class="fa-solid fa-dog text-xl"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg leading-tight">ZooBase Prueba Piloto</h1>
-                        <p class="text-xs text-blue-200">Municipalidad de General Pueyrredon</p>
+                        <h1 class="font-bold text-lg leading-tight">ZooBase</h1>
+                        <p class="text-xs text-blue-200">Municipalidad General Pueyrredón</p>
                     </div>
                 </div>
 
@@ -629,14 +630,14 @@
                     { id: "pelaje", label: "Pelaje", type: "text", required: true },
                     { id: "veterinario", label: "Veterinario", type: "text", required: true },
                     { id: "matriculaVet", label: "Matrícula Vet.", type: "text", required: true },
-                    { id: "propietario", label: "Apellido y Nombre (Tenedor)", type: "text", required: true },
-                    { id: "dniPropietario", label: "Documento (Tenedor)", type: "text", required: true },
-                    { id: "nacimientoProp", label: "Fec. Nac. (Tenedor)", type: "date", required: true },
-                    { id: "domicilio", label: "Domicilio (Tenedor)", type: "text", required: true },
-                    { id: "telefono", label: "Teléfono (Tenedor)", type: "text", required: true },
+                    { id: "propietario", label: "Apellido y Nombre (Tutor/a)", type: "text", required: true },
+                    { id: "dniPropietario", label: "Documento (Tutor/a)", type: "text", required: true },
+                    { id: "nacimientoProp", label: "Fec. Nac. (Tutor/a)", type: "date", required: true },
+                    { id: "domicilio", label: "Domicilio (Tutor/a)", type: "text", required: true },
+                    { id: "telefono", label: "Teléfono (Tutor/a)", type: "text", required: true },
                     { id: "fechaEmision", label: "Fecha de Emisión", type: "date", required: true }
                 ],
-                tableColumns: ["Trámite", "Chip", "Animal", "Tenedor", "Emisión", "Acciones"]
+                tableColumns: ["Trámite", "Chip", "Animal", "Tutor/a", "Emisión", "Acciones"]
             }
         };
 
@@ -1381,12 +1382,12 @@
                 const textoNorma = "Acompañada del DNI del titular, la presente credencial, certifica el registro del mismo como paseador de canes en el Partido de General Pueyrredón. (Art. 20 Cap IV. Ordenanza 22.031)";
                 const nombreTarjeta = "REPAC";
                 const subDatos = "Datos del paseador:";
-                const tramiteStr = rec.tramite ? `#${rec.tramite}` : '#00000';
+                const tramiteStr = rec.tramite ? `${rec.tramite}` : '00000';
 
                 const htmlCard = (isCopy) => `
                     <div class="space-y-4 pr-4 border-r border-slate-300">
                         <div>
-                            ${isCopy ? `<div class="flex items-center space-x-2 mb-1"><span class="bg-slate-900 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">TRÁMITE</span><span class="text-xs font-mono font-bold text-slate-800">${tramiteStr}</span></div>` : ''}
+                            ${isCopy ? `<div class="flex items-center space-x-2 mb-1"><span class="bg-slate-900 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">TRÁMITE N°</span><span class="text-xs font-mono font-bold text-slate-800">${tramiteStr}</span></div>` : ''}
                             <h3 class="text-base font-black text-slate-900">${tituloModulo}</h3>
                             <p class="text-[10px] text-slate-600 leading-tight mt-1">${textoNorma}</p>
                         </div>
@@ -1435,12 +1436,12 @@
                 const textoNorma = "Acompañada del DNI del titular, la presente credencial, certifica el registro del mismo como adiestrador de canes en el Partido de General Pueyrredón. (Art. 20 Cap IV. Ordenanza 22.031)";
                 const nombreTarjeta = "RAC";
                 const subDatos = "Datos del adiestrador:";
-                const tramiteStr = rec.tramite ? `#${rec.tramite}` : '#00000';
+                const tramiteStr = rec.tramite ? `${rec.tramite}` : '00000';
 
                 const htmlCard = (isCopy) => `
                     <div class="space-y-4 pr-4 border-r border-slate-300">
                         <div>
-                            ${isCopy ? `<div class="flex items-center space-x-2 mb-1"><span class="bg-slate-900 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">TRÁMITE</span><span class="text-xs font-mono font-bold text-slate-800">${tramiteStr}</span></div>` : ''}
+                            ${isCopy ? `<div class="flex items-center space-x-2 mb-1"><span class="bg-slate-900 text-white text-[10px] font-mono font-bold px-2 py-0.5 rounded">TRÁMITE N°</span><span class="text-xs font-mono font-bold text-slate-800">${tramiteStr}</span></div>` : ''}
                             <h3 class="text-base font-black text-slate-900">${tituloModulo}</h3>
                             <p class="text-[10px] text-slate-600 leading-tight mt-1">${textoNorma}</p>
                         </div>
@@ -1502,7 +1503,7 @@
                             </div>
                             <div class="mt-1">
                                 <h3 class="text-sm font-black text-slate-900">Registro Municipal Canino REMCA</h3>
-                                ${isCopy ? `<p class="text-[10px] font-mono font-bold text-slate-800 mt-0.5">Nº TRÁMITE: #${rec.tramite || '00000'}</p>` : `<p class="text-[11px] font-bold text-slate-800 mt-0.5">Microchip N°: <span class="font-mono font-normal">${rec.chip || '-'}</span></p>`}
+                                ${isCopy ? `<p class="text-[10px] font-mono font-bold text-slate-800 mt-0.5">Nº TRÁMITE: ${rec.tramite || '00000'}</p>` : `<p class="text-[11px] font-bold text-slate-800 mt-0.5">Microchip N°: <span class="font-mono font-normal">${rec.chip || '-'}</span></p>`}
                             </div>
                             <div class="space-y-0.5 text-[11px] mt-1">
                                 <div><span class="font-bold">Nombre:</span> ${rec.nombreAnimal || '-'}</div>
@@ -1537,10 +1538,10 @@
                             </div>
                             <div class="text-center mt-1">
                                 <h2 class="text-xs font-black uppercase text-slate-900">${isCopy ? 'TALON DE CONTROL MUNICIPAL' : 'Zoonosis y Bienestar Animal – MGP'}</h2>
-                                <p class="text-[9px] font-bold text-slate-500">${isCopy ? 'DATOS TENEDOR RESPONSABLE' : 'CREDENCIAL'}</p>
+                                <p class="text-[9px] font-bold text-slate-500">${isCopy ? 'DATOS TUTOR/A' : 'CREDENCIAL'}</p>
                             </div>
                             <div>
-                                <p class="text-[11px] font-bold text-slate-700 mt-1">Datos del tenedor responsable:</p>
+                                <p class="text-[11px] font-bold text-slate-700 mt-1">Datos del tutor/a:</p>
                             </div>
                             <div class="space-y-1 text-[11px] mt-1">
                                 <div><span class="font-bold">Apellido y nombre:</span> ${rec.propietario || '-'}</div>
@@ -1553,7 +1554,7 @@
                         <div class="pt-3 pb-1 flex justify-end">
                             <div class="text-center w-40">
                                 <div class="border-b border-slate-400 mx-auto w-full pb-1"></div>
-                                <span class="text-[9px] font-medium text-slate-500">${isCopy ? 'Firma del tenedor responsable' : 'Firma y sello autoridad'}</span>
+                                <span class="text-[9px] font-medium text-slate-500">${isCopy ? 'Firma del tutor/a' : 'Firma y sello autoridad'}</span>
                             </div>
                         </div>
                     </div>
