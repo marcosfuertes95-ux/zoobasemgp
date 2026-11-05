@@ -24,10 +24,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QR Code Generator -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- html2canvas for PNG Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- jsPDF for PDF Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <!-- FIREBASE SDK COMPAT -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -88,18 +84,44 @@
                         0 -6px 10px rgba(0, 0, 0, 0.08) inset;
         }
 
+        /* CORRECCIÓN DE IMPRESIÓN LIMPIA Y PROFESIONAL */
         @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
+            body * {
+                visibility: hidden !important;
+            }
+            #printArea, #printArea * {
+                visibility: visible !important;
+            }
             #printArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
                 display: flex !important;
                 flex-direction: column !important;
-                align-items: center;
-                gap: 20px;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 30px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+            }
+            /* Ocultamos los fondos oscuros, bordes de modales y barras de la app */
+            #credentialSection {
+                background: white !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+            }
+            #credentialCardBox {
+                box-shadow: none !important;
+                border: none !important;
+                background: white !important;
+                transform: none !important;
+                max-height: none !important;
+                width: 100% !important;
             }
             .no-print { display: none !important; }
         }
@@ -391,38 +413,51 @@
                 </div>
             </div>
 
-            <!-- Preview & Credential Output Area (Oculto por defecto hasta que se selecciona un registro) -->
-            <div id="credentialSection" class="hidden bg-white dark:bg-slate-900 p-6 rounded-xl shadow-md border-2 border-banner-blue space-y-6 transition-all duration-300 animate-fadeIn">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded text-[10px] font-bold uppercase">Seleccionado</span>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white" id="selectedRecordTitle">Vista Previa de Credencial ID</h3>
-                        </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Credencial reglamentaria generada para impresión o exportación digital.</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2 items-center">
-                        <button onclick="exportPNG()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer">
-                            <i class="fa-solid fa-file-image"></i>
-                            <span>Descargar PNG</span>
-                        </button>
-                        <button onclick="exportPDF()" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer">
-                            <i class="fa-solid fa-file-pdf"></i>
-                            <span>Descargar PDF</span>
-                        </button>
-                        <button onclick="window.print()" class="px-3 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer">
-                            <i class="fa-solid fa-print"></i>
-                            <span>Imprimir</span>
-                        </button>
-                        <button onclick="closeCredentialPreview()" class="px-3 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium transition flex items-center space-x-1 cursor-pointer" title="Cerrar Vista Previa">
-                            <i class="fa-solid fa-xmark"></i>
-                            <span>Ocultar</span>
-                        </button>
-                    </div>
-                </div>
+            <!-- Paginación Estética -->
+            <div id="paginationContainer" class="hidden flex justify-between items-center bg-white dark:bg-slate-900 px-4 py-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <button onclick="cambiarPagina(-1)" id="btnPagAnterior" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 cursor-pointer">
+                    <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                    <span>Anterior</span>
+                </button>
+                <span id="pageInfoIndicator" class="text-xs font-semibold text-slate-600 dark:text-slate-400">
+                    Página 1 de 1
+                </span>
+                <button onclick="cambiarPagina(1)" id="btnPagSiguiente" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 cursor-pointer">
+                    <span>Siguiente</span>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </button>
+            </div>
 
-                <!-- Printable Credential Layout -->
-                <div id="printArea" class="flex flex-col gap-6 items-center py-4 bg-slate-100 dark:bg-slate-950 p-4 rounded-xl">
+        </main>
+    </div>
+
+    <!-- CREDENTIAL MODAL PREVIEW (Ventana Flotante con Animación 3D Zoom y Desvanecimiento) -->
+    <div id="credentialSection" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-500 opacity-0 pointer-events-none">
+        <div id="credentialCardBox" class="card-3d-relief bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[95vh] flex flex-col transform scale-75 transition-all duration-500 ease-out">
+            
+            <!-- HEADER DEL MODAL CON TÍTULO Y BOTÓN DE IMPRIMIR ROJO -->
+            <div class="p-4 sm:p-5 bg-banner-blue text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 no-print">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded text-[10px] font-bold uppercase">Seleccionado</span>
+                        <h3 class="text-base sm:text-lg font-bold text-white" id="selectedRecordTitle">Vista Previa de Credencial ID</h3>
+                    </div>
+                    <p class="text-[11px] text-blue-200">Credencial reglamentaria generada para impresión o exportación digital.</p>
+                </div>
+                <div class="flex flex-wrap gap-2 items-center">
+                    <button onclick="imprimirCredencial()" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition flex items-center space-x-1 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Imprimir</span>
+                    </button>
+                    <button onclick="closeCredentialPreview()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition flex items-center space-x-1 cursor-pointer" title="Cerrar">
+                        <i class="fa-solid fa-xmark text-base"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CONTENIDO DE LA CREDENCIAL (Con Scroll Interno si es necesario) -->
+            <div class="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-950">
+                <div id="printArea" class="flex flex-col gap-6 items-center py-2">
                     
                     <!-- 1. CREDENCIAL PRINCIPAL -->
                     <div class="official-credential-container">
@@ -441,7 +476,7 @@
                 </div>
             </div>
 
-        </main>
+        </div>
     </div>
 
     <!-- FORM MODAL -->
@@ -581,6 +616,11 @@
             ppp: []
         };
         let users = [];
+
+        // Variables de Control de Paginación
+        let paginaActual = 1;
+        const REGISTROS_POR_PAGINA = 10;
+        let listaFiltradaCache = null;
 
         const moduleConfigs = {
             paseadores: {
@@ -1036,7 +1076,7 @@
             document.getElementById('mainMenuView').classList.remove('hidden');
             document.getElementById('moduleDetailView').classList.add('hidden');
             document.getElementById('btnBackToMenu').classList.add('hidden');
-            document.getElementById('credentialSection').classList.add('hidden');
+            closeCredentialPreview();
         }
 
         function requestReturnToMainMenu() {
@@ -1137,10 +1177,14 @@
             currentModule = modKey;
             const config = moduleConfigs[modKey];
 
+            // Reset de paginación al cambiar de módulo
+            listaFiltradaCache = null;
+            paginaActual = 1;
+
             document.getElementById('mainMenuView').classList.add('hidden');
             document.getElementById('moduleDetailView').classList.remove('hidden');
             document.getElementById('btnBackToMenu').classList.remove('hidden');
-            document.getElementById('credentialSection').classList.add('hidden');
+            closeCredentialPreview();
 
             document.getElementById('moduleBadge').innerText = config.badge;
             document.getElementById('moduleBadge').className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${config.badgeClass}`;
@@ -1152,9 +1196,14 @@
 
         function renderTable(filteredList = null) {
             const config = moduleConfigs[currentModule];
-            const records = filteredList || db[currentModule];
+            
+            if (filteredList !== null) {
+                listaFiltradaCache = filteredList;
+                paginaActual = 1;
+            }
 
-            document.getElementById('recordCount').innerText = records.length;
+            const records = listaFiltradaCache !== null ? listaFiltradaCache : db[currentModule];
+            document.getElementById('recordCount').innerText = db[currentModule].length;
 
             const headerTr = document.getElementById('tableHeader');
             headerTr.innerHTML = config.tableColumns.map(col => `<th class="px-4 py-3">${col}</th>`).join('');
@@ -1163,16 +1212,38 @@
             tbody.innerHTML = '';
 
             const emptyState = document.getElementById('emptyState');
+            const paginationContainer = document.getElementById('paginationContainer');
 
             if (records.length === 0) {
                 emptyState.classList.remove('hidden');
-                document.getElementById('credentialSection').classList.add('hidden');
+                paginationContainer.classList.add('hidden');
+                closeCredentialPreview();
                 return;
             } else {
                 emptyState.classList.add('hidden');
             }
 
-            records.forEach((rec, idx) => {
+            // Lógica de Paginación Local por Lotes
+            const totalPaginas = Math.ceil(records.length / REGISTROS_POR_PAGINA) || 1;
+            if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+            if (paginaActual < 1) paginaActual = 1;
+
+            const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+            const fin = inicio + REGISTROS_POR_PAGINA;
+            const registrosPaginados = records.slice(inicio, fin);
+
+            if (records.length > REGISTROS_POR_PAGINA) {
+                paginationContainer.classList.remove('hidden');
+                paginationContainer.classList.add('flex');
+                document.getElementById('pageInfoIndicator').innerText = `Página ${paginaActual} de ${totalPaginas} (${records.length} registros)`;
+                
+                document.getElementById('btnPagAnterior').disabled = (paginaActual === 1);
+                document.getElementById('btnPagSiguiente').disabled = (paginaActual === totalPaginas);
+            } else {
+                paginationContainer.classList.add('hidden');
+            }
+
+            registrosPaginados.forEach((rec) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/50 transition cursor-pointer";
                 tr.onclick = () => selectRecord(rec);
@@ -1207,6 +1278,13 @@
             });
         }
 
+        function cambiarPagina(direccion) {
+            paginaActual += direccion;
+            renderTable(listaFiltradaCache);
+            const tableHeader = document.getElementById('tableHeader');
+            if (tableHeader) tableHeader.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         function filterRecords() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const list = db[currentModule];
@@ -1214,7 +1292,7 @@
                 return Object.values(item).some(val => String(val).toLowerCase().includes(query));
             });
             renderTable(filtered);
-            document.getElementById('credentialSection').classList.add('hidden');
+            closeCredentialPreview();
         }
 
         function openFormModal(editId = null) {
@@ -1324,21 +1402,40 @@
                 db[currentModule] = db[currentModule].filter(x => x.id !== id);
                 saveDB();
                 renderTable();
-                document.getElementById('credentialSection').classList.add('hidden');
+                closeCredentialPreview();
                 showToast("Registro eliminado", "error");
             }
         }
 
         function closeCredentialPreview() {
-            document.getElementById('credentialSection').classList.add('hidden');
+            const credSection = document.getElementById('credentialSection');
+            const cardBox = document.getElementById('credentialCardBox');
+
+            if (!credSection || credSection.classList.contains('hidden')) return;
+
+            cardBox.classList.remove('scale-100');
+            cardBox.classList.add('scale-75');
+
+            credSection.classList.remove('opacity-100');
+            credSection.classList.add('opacity-0');
+
+            setTimeout(() => {
+                credSection.classList.add('hidden', 'pointer-events-none');
+            }, 500);
+        }
+
+        function imprimirCredencial() {
+            const cardBox = document.getElementById('credentialCardBox');
+            cardBox.classList.remove('scale-75');
+            cardBox.classList.add('scale-100');
+            window.print();
         }
 
         function selectRecord(rec) {
             if (!rec) return;
 
             const credSection = document.getElementById('credentialSection');
-            credSection.classList.remove('hidden');
-            credSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const cardBox = document.getElementById('credentialCardBox');
 
             const titleLabel = rec.nombreApellido || rec.nombreAnimal || rec.tramite || 'Credencial';
             document.getElementById('selectedRecordTitle').innerText = `Credencial: ${titleLabel}`;
@@ -1352,11 +1449,10 @@
                 return fechaStr;
             }
 
-            // Función para transformar la fecha de emisión en formato de letras (ej: "23 de octubre de 2026")
             function formatFechaLetras(fechaStr) {
                 if (!fechaStr) return '-';
                 if (fechaStr.includes('-')) {
-                    const partes = fechaStr.split('-'); // [AÑO, MES, DÍA]
+                    const partes = fechaStr.split('-');
                     if (partes.length === 3) {
                         const anio = partes[0];
                         const mesNum = parseInt(partes[1], 10);
@@ -1563,6 +1659,15 @@
                 document.getElementById('credBody1').innerHTML = htmlPppCard(false);
                 document.getElementById('credBody2').innerHTML = htmlPppCard(true);
             }
+
+            // Animación de Zoom y Desvanecimiento al abrir la credencial
+            credSection.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+            credSection.classList.add('opacity-100');
+
+            setTimeout(() => {
+                cardBox.classList.remove('scale-75');
+                cardBox.classList.add('scale-100');
+            }, 50);
         }
 
         function exportGlobalJSON() {
@@ -1606,31 +1711,6 @@
                 }
             };
             reader.readAsText(file);
-        }
-
-        function exportPNG() {
-            const printArea = document.getElementById('printArea');
-            html2canvas(printArea, { scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `credenciales_${currentModule}_${Date.now()}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showToast("Credencial descargada como PNG", "success");
-            });
-        }
-
-        function exportPDF() {
-            const { jsPDF } = window.jspdf;
-            const printArea = document.getElementById('printArea');
-            html2canvas(printArea, { scale: 2 }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('portrait', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth - 20, pdfHeight);
-                pdf.save(`credenciales_${currentModule}_${Date.now()}.pdf`);
-                showToast("Credencial descargada como PDF", "success");
-            });
         }
 
         function showToast(msg, type = 'success') {
