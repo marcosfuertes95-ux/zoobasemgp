@@ -106,7 +106,6 @@
                 padding: 0 !important;
                 background: white !important;
             }
-            /* Ocultamos los fondos oscuros, bordes de modales y barras de la app */
             #credentialSection {
                 background: white !important;
                 position: absolute !important;
@@ -134,7 +133,6 @@
          class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-cover bg-center bg-no-repeat"
          style="background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url('fondomardelplata.png');">
         
-        <!-- Recuadro flotante 3D de Carga, Éxito o Error con cambio dinámico de color -->
         <div id="loginSuccessBox" class="hidden fixed z-50 card-3d-relief bg-gradient-to-br from-white to-slate-100 dark:from-slate-800 dark:to-slate-900 border border-slate-200/80 dark:border-slate-700 px-8 py-6 rounded-2xl flex flex-col items-center justify-center space-y-3 transform scale-95 transition-all duration-300">
             <div id="loginIconContainer" class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shadow-inner transition-colors duration-300">
                 <i id="loginSuccessIcon" class="fa-solid fa-circle-notch fa-spin text-slate-600 dark:text-slate-300 text-xl"></i>
@@ -144,12 +142,10 @@
 
         <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden relative z-10 border border-slate-100 dark:border-slate-800 flex flex-col items-center">
             
-            <!-- BANNER SUPERIOR (Full Width) -->
             <div class="w-full">
                 <img src="banner 1 salud.png" alt="Salud Mar del Plata" class="w-full h-auto object-cover block">
             </div>
 
-            <!-- CONTENIDO DEL FORMULARIO CON PADDING INTERNO -->
             <div class="w-full p-6 sm:p-8 flex flex-col items-center">
                 <div class="text-center mb-6">
                     <div class="inline-flex p-3 bg-banner-blue text-white rounded-2xl shadow-lg mb-2">
@@ -161,7 +157,6 @@
                     <div class="w-10 h-1 bg-banner-blue mx-auto mt-3 rounded-full"></div>
                 </div>
 
-                <!-- Login Form con autocomplete off -->
                 <form onsubmit="handleLogin(event)" class="space-y-4 w-full" autocomplete="off">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Usuario</label>
@@ -190,7 +185,6 @@
                 </form>
             </div>
 
-            <!-- BANNER INFERIOR (Full Width) -->
             <div class="w-full">
                 <img src="banner 2 salud.png" alt="Decoración institucional" class="w-full h-auto object-cover block">
             </div>
@@ -201,7 +195,6 @@
     <!-- MAIN APP WRAPPER -->
     <div id="appContainer" class="hidden flex-col min-h-screen">
 
-        <!-- Cartel de Bienvenida / Cierre de Sesión / Carga de Módulo Flotante Estético 3D -->
         <div id="welcomeBannerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all duration-500 opacity-0 pointer-events-none">
             <div id="welcomeCardContent" class="card-3d-relief bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-10 rounded-3xl shadow-2xl flex flex-col items-center space-y-5 max-w-md w-full transform scale-75 transition-all duration-500 ease-out">
                 <div id="welcomeModalIconWrapper" class="w-20 h-20 rounded-2xl bg-banner-blue text-white flex items-center justify-center shadow-xl transition-colors duration-300">
@@ -243,7 +236,6 @@
                         <span class="hidden sm:inline">Operadores</span>
                     </button>
 
-                    <!-- BOTÓN DE MODO OSCURO / CLARO (Ubicado junto a cerrar sesión) -->
                     <button onclick="toggleDarkMode()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center cursor-pointer" title="Cambiar Modo Oscuro/Claro">
                         <i id="darkModeIcon" class="fa-solid fa-moon text-sm"></i>
                     </button>
@@ -271,7 +263,6 @@
                 <p class="text-sm text-slate-500 dark:text-slate-400">Seleccione una categoría para acceder a la base de datos.</p>
             </div>
 
-            <!-- Global Backup Bar -->
             <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 transition-colors">
                 <div class="flex items-center space-x-3">
                     <div class="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl">
@@ -295,21 +286,16 @@
                 </div>
             </div>
 
-            <!-- 3 Main Category Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 
-                <!-- CARD 1: PASEADORES -->
                 <div onclick="requestSwitchModule('paseadores')" class="group bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between relative overflow-hidden text-center min-h-[320px]">
                     <div class="absolute top-0 left-0 right-0 h-2 bg-emerald-500"></div>
-                    
                     <div class="w-28 h-28 my-auto flex items-center justify-center transition-transform group-hover:scale-110">
                         <img src="Paseador.png" alt="Paseadores" class="max-h-24 max-w-full object-contain dark:invert dark:brightness-200">
                     </div>
-
                     <div class="w-full space-y-3">
                         <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition">Registro de Paseadores</h3>
                         <p class="text-xs font-semibold text-slate-400"><span id="menuCountPaseadores" class="font-bold text-slate-800 dark:text-slate-200">0</span> Registrados</p>
-                        
                         <div class="pt-2">
                             <span class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-bold text-sm rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition">
                                 Ingresar <i class="fa-solid fa-arrow-right ml-2"></i>
@@ -318,18 +304,14 @@
                     </div>
                 </div>
 
-                <!-- CARD 2: ADIESTRADORES -->
                 <div onclick="requestSwitchModule('adiestradores')" class="group bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between relative overflow-hidden text-center min-h-[320px]">
                     <div class="absolute top-0 left-0 right-0 h-2 bg-blue-500"></div>
-                    
                     <div class="w-28 h-28 my-auto flex items-center justify-center transition-transform group-hover:scale-110">
                         <img src="Adiestrador.png" alt="Adiestradores" class="max-h-24 max-w-full object-contain dark:invert dark:brightness-200">
                     </div>
-
                     <div class="w-full space-y-3">
                         <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition">Registro de Adiestradores</h3>
                         <p class="text-xs font-semibold text-slate-400"><span id="menuCountAdiestradores" class="font-bold text-slate-800 dark:text-slate-200">0</span> Registrados</p>
-                        
                         <div class="pt-2">
                             <span class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 font-bold text-sm rounded-xl group-hover:bg-blue-600 group-hover:text-white transition">
                                 Ingresar <i class="fa-solid fa-arrow-right ml-2"></i>
@@ -338,18 +320,14 @@
                     </div>
                 </div>
 
-                <!-- CARD 3: PERROS PPP -->
                 <div onclick="requestSwitchModule('ppp')" class="group bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-800 hover:border-orange-500 dark:hover:border-orange-500 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between relative overflow-hidden text-center min-h-[320px]">
                     <div class="absolute top-0 left-0 right-0 h-2 bg-orange-500"></div>
-                    
                     <div class="w-28 h-28 my-auto flex items-center justify-center transition-transform group-hover:scale-110">
                         <img src="PPP.png" alt="Perros PPP" class="max-h-24 max-w-full object-contain dark:invert dark:brightness-200">
                     </div>
-
                     <div class="w-full space-y-3">
                         <h3 class="text-xl font-bold text-slate-900 dark:text-white group-hover:text-orange-600 transition">Registro Perros Potencialmente Peligrosos</h3>
                         <p class="text-xs font-semibold text-slate-400"><span id="menuCountPPP" class="font-bold text-slate-800 dark:text-slate-200">0</span> Registrados</p>
-                        
                         <div class="pt-2">
                             <span class="inline-flex items-center justify-center w-full py-2.5 px-4 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 font-bold text-sm rounded-xl group-hover:bg-orange-600 group-hover:text-white transition">
                                 Ingresar <i class="fa-solid fa-arrow-right ml-2"></i>
@@ -374,14 +352,25 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
-                    <button onclick="openFormModal()" class="px-4 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium transition flex items-center space-x-2">
+                    <!-- BOTÓN ALTA VET (Visible solo en PPP) -->
+                    <button id="btnAltaVet" onclick="openAltaVetModal()" class="hidden px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition flex items-center space-x-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-user-doctor"></i>
+                        <span>Alta Veterinario</span>
+                    </button>
+
+                    <!-- BOTÓN GESTIÓN PADRÓN VET (Visible solo en PPP para Admins) -->
+                    <button id="btnPadronVet" onclick="openPadronVetModal()" class="hidden px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition flex items-center space-x-1.5 cursor-pointer shadow-sm">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Padrón Veterinarios</span>
+                    </button>
+
+                    <button onclick="openFormModal()" class="px-4 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium transition flex items-center space-x-2 cursor-pointer">
                         <i class="fa-solid fa-plus"></i>
                         <span>Nuevo Registro</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Filter & Search Bar -->
             <div class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row gap-3 justify-between items-center transition-colors">
                 <div class="relative w-full sm:w-80">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
@@ -392,17 +381,14 @@
                 </div>
             </div>
 
-            <!-- Table View -->
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr id="tableHeader" class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
-                                <!-- Dynamic Table Headers -->
                             </tr>
                         </thead>
                         <tbody id="recordsTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
-                            <!-- Dynamic Rows -->
                         </tbody>
                     </table>
                 </div>
@@ -413,7 +399,6 @@
                 </div>
             </div>
 
-            <!-- Paginación Estética -->
             <div id="paginationContainer" class="hidden flex justify-between items-center bg-white dark:bg-slate-900 px-4 py-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                 <button onclick="cambiarPagina(-1)" id="btnPagAnterior" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-1 cursor-pointer">
                     <i class="fa-solid fa-chevron-left text-[10px]"></i>
@@ -431,11 +416,10 @@
         </main>
     </div>
 
-    <!-- CREDENTIAL MODAL PREVIEW (Ventana Flotante con Animación 3D Zoom y Desvanecimiento) -->
+    <!-- CREDENTIAL MODAL PREVIEW -->
     <div id="credentialSection" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-all duration-500 opacity-0 pointer-events-none">
         <div id="credentialCardBox" class="card-3d-relief bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[95vh] flex flex-col transform scale-75 transition-all duration-500 ease-out">
             
-            <!-- HEADER DEL MODAL CON TÍTULO Y BOTÓN DE IMPRIMIR ROJO -->
             <div class="p-4 sm:p-5 bg-banner-blue text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 no-print">
                 <div>
                     <div class="flex items-center space-x-2">
@@ -455,21 +439,16 @@
                 </div>
             </div>
 
-            <!-- CONTENIDO DE LA CREDENCIAL (Con Scroll Interno si es necesario) -->
             <div class="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-slate-950">
                 <div id="printArea" class="flex flex-col gap-6 items-center py-2">
                     
-                    <!-- 1. CREDENCIAL PRINCIPAL -->
                     <div class="official-credential-container">
                         <div id="credBody1" class="grid grid-cols-2 gap-6 items-center">
-                            <!-- Inyectado dinámicamente -->
                         </div>
                     </div>
 
-                    <!-- 2. COPIA PARA LIBRO DE ACTAS -->
                     <div class="official-credential-container">
                         <div id="credBody2" class="grid grid-cols-2 gap-6 items-center">
-                            <!-- Inyectado dinámicamente -->
                         </div>
                     </div>
 
@@ -488,7 +467,7 @@
                     <h3 id="modalFormTitle" class="font-bold text-base">Nuevo Registro</h3>
                     <p id="modalFormSub" class="text-xs text-blue-200">Ingresa los datos correspondientes.</p>
                 </div>
-                <button onclick="closeFormModal()" class="text-blue-200 hover:text-white text-xl">
+                <button onclick="closeFormModal()" class="text-blue-200 hover:text-white text-xl cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -496,7 +475,6 @@
             <form id="recordForm" onsubmit="saveRecord(event)" class="p-6 overflow-y-auto space-y-4 flex-1">
                 <input type="hidden" id="fieldId">
 
-                <!-- Photo Upload Field -->
                 <div class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
                     <div class="w-20 h-20 rounded-lg bg-slate-200 dark:bg-slate-700 overflow-hidden relative flex items-center justify-center shrink-0">
                         <img id="modalPhotoPreview" src="" class="w-full h-full object-cover hidden">
@@ -504,19 +482,19 @@
                     </div>
                     <div class="flex-1 space-y-1">
                         <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Foto de Identificación / Animal</label>
-                        <input type="file" id="fieldPhoto" accept="image/*" onchange="previewPhoto(event)" class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 dark:file:bg-slate-700 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300">
+                        <input type="file" id="fieldPhoto" accept="image/*" onchange="previewPhoto(event)" class="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 dark:file:bg-slate-700 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-300 cursor-pointer">
                     </div>
                 </div>
 
-                <!-- Dynamic Form Fields Container -->
                 <div id="dynamicFields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- Injected by JavaScript -->
                 </div>
 
-                <!-- Submit Buttons -->
+                <!-- Datalist dinámico para autocompletar veterinarios -->
+                <datalist id="vetsDatalist"></datalist>
+
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Cancelar</button>
-                    <button type="submit" class="px-5 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium flex items-center space-x-2">
+                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-banner-blue hover:bg-[#152a4a] text-white rounded-lg text-sm font-medium flex items-center space-x-2 cursor-pointer">
                         <i class="fa-solid fa-floppy-disk"></i>
                         <span>Guardar Registro</span>
                     </button>
@@ -533,7 +511,7 @@
                     <h3 class="font-bold text-base">Gestión de Operadores y Accesos</h3>
                     <p class="text-xs text-indigo-200">Panel de Administración de Personal</p>
                 </div>
-                <button onclick="closeUsersModal()" class="text-indigo-200 hover:text-white text-xl">
+                <button onclick="closeUsersModal()" class="text-indigo-200 hover:text-white text-xl cursor-pointer">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -570,7 +548,7 @@
                     </div>
 
                     <div class="flex gap-2 pt-2">
-                        <button type="button" id="btnCancelOpEdit" onclick="resetUserForm()" class="hidden px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold hover:bg-slate-300">Cancelar</button>
+                        <button type="button" id="btnCancelOpEdit" onclick="resetUserForm()" class="hidden px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold hover:bg-slate-300 cursor-pointer">Cancelar</button>
                         <button type="submit" id="btnSubmitOp" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer">
                             <i class="fa-solid fa-user-plus"></i>
                             <span id="btnSubmitOpText">Registrar Nuevo Operador</span>
@@ -581,7 +559,85 @@
                 <div class="space-y-2">
                     <h4 class="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Operadores Habilitados</h4>
                     <div id="usersListContainer" class="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
-                        <!-- Inyectado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ALTA RÁPIDA DE VETERINARIO -->
+    <div id="altaVetModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+            <div class="p-4 bg-emerald-700 text-white flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-user-doctor text-lg"></i>
+                    <h3 class="font-bold text-base">Alta de Veterinario</h3>
+                </div>
+                <button onclick="closeAltaVetModal()" class="text-emerald-200 hover:text-white text-xl cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveVet(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Apellido y Nombre *</label>
+                    <input type="text" id="vetNombre" required placeholder="Ej: Dra. María Gómez" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">Número de Matrícula *</label>
+                    <input type="text" id="vetMatricula" required placeholder="Ej: MP 14852" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeAltaVetModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition flex items-center space-x-1.5 cursor-pointer">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Guardar Veterinario</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PADRÓN DE VETERINARIOS (SOLO ADMIN) -->
+    <div id="padronVetModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-5 bg-indigo-900 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-base">Padrón Oficial de Veterinarios Habilitados</h3>
+                    <p class="text-xs text-indigo-200">Panel de Administración de Profesionales</p>
+                </div>
+                <button onclick="closePadronVetModal()" class="text-indigo-200 hover:text-white text-xl cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <form onsubmit="handleEditSaveVet(event)" class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <input type="hidden" id="vetEditId">
+                    <h4 id="vetEditFormTitle" class="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Crear / Editar Profesional</h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Apellido y Nombre *</label>
+                            <input type="text" id="vetEditNombre" required placeholder="Ej: Dr. Carlos Pérez" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Nº de Matrícula *</label>
+                            <input type="text" id="vetEditMatricula" required placeholder="Ej: MP 9876" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2 pt-1">
+                        <button type="button" id="btnCancelVetEdit" onclick="resetVetEditForm()" class="hidden px-3 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold hover:bg-slate-300 cursor-pointer">Cancelar</button>
+                        <button type="submit" id="btnSubmitVetEdit" class="flex-1 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-floppy-disk"></i>
+                            <span id="btnSubmitVetEditText">Guardar en Padrón</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">Listado de Veterinarios Registrados</h4>
+                    <div id="vetsListContainer" class="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
                     </div>
                 </div>
             </div>
@@ -590,7 +646,6 @@
 
     <!-- Application Script -->
     <script>
-        // CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyDl8KZWjH5YPSo9Vz8-YhxwblirbM-HMd0",
             authDomain: "zoobase-mgp.firebaseapp.com",
@@ -601,7 +656,6 @@
             measurementId: "G-DQSNM3J0KD"
         };
 
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const dbCloud = firebase.firestore();
 
@@ -613,11 +667,11 @@
         let db = {
             paseadores: [],
             adiestradores: [],
-            ppp: []
+            ppp: [],
+            veterinarios: []
         };
         let users = [];
 
-        // Variables de Control de Paginación
         let paginaActual = 1;
         const REGISTROS_POR_PAGINA = 10;
         let listaFiltradaCache = null;
@@ -668,7 +722,7 @@
                     { id: "especieRaza", label: "Especie / Raza", type: "text", required: true },
                     { id: "sexo", label: "Sexo", type: "text", required: true },
                     { id: "pelaje", label: "Pelaje", type: "text", required: true },
-                    { id: "veterinario", label: "Veterinario", type: "text", required: true },
+                    { id: "veterinario", label: "Veterinario", type: "text", required: true, autocomplete: "off", list: "vetsDatalist", oninput: "autoCompleteVetMatricula(this)" },
                     { id: "matriculaVet", label: "Matrícula Vet.", type: "text", required: true },
                     { id: "propietario", label: "Apellido y Nombre (Tutor/a)", type: "text", required: true },
                     { id: "dniPropietario", label: "Documento (Tutor/a)", type: "text", required: true },
@@ -686,7 +740,6 @@
             loadDB();
         };
 
-        // FUNCIONES DE MODO OSCURO
         function initTheme() {
             const savedTheme = localStorage.getItem(THEME_KEY);
             if (savedTheme === 'dark') {
@@ -711,7 +764,6 @@
             }
         }
 
-        // CARGAR DATOS Y OPERADORES DESDE GOOGLE FIRESTORE
         function loadDB() {
             dbCloud.collection("zoobase_data").doc("main_records").get().then((doc) => {
                 if (doc.exists) {
@@ -719,12 +771,12 @@
                     db = {
                         paseadores: data.paseadores || [],
                         adiestradores: data.adiestradores || [],
-                        ppp: data.ppp || []
+                        ppp: data.ppp || [],
+                        veterinarios: data.veterinarios || []
                     };
                     users = data.users || [];
                 }
 
-                // Si no hay usuarios en la nube, creamos el administrador por defecto
                 if (!users || users.length === 0) {
                     users = [
                         { id: 'usr_admin', usuario: 'mfuertes', fullName: 'Marcos Fuertes', legajo: '0001', clave: '2023', role: 'admin' }
@@ -745,6 +797,7 @@
 
                 updateMenuCounts();
                 checkSession();
+                updateVetsDatalist();
                 if (!document.getElementById('moduleDetailView').classList.contains('hidden')) {
                     renderTable();
                 }
@@ -754,18 +807,19 @@
             });
         }
 
-        // GUARDAR TODO (REGISTROS Y OPERADORES) EN GOOGLE FIRESTORE
         function saveDB() {
             const payload = {
                 paseadores: db.paseadores,
                 adiestradores: db.adiestradores,
                 ppp: db.ppp,
+                veterinarios: db.veterinarios || [],
                 users: users
             };
 
             dbCloud.collection("zoobase_data").doc("main_records").set(payload)
             .then(() => {
                 updateMenuCounts();
+                updateVetsDatalist();
             })
             .catch((error) => {
                 console.error("Error al guardar en Firebase:", error);
@@ -783,7 +837,6 @@
                 document.getElementById('appContainer').classList.add('flex');
 
                 const loggedUser = users.find(x => x.usuario === currentUsername);
-
                 const btnManage = document.getElementById('btnManageUsers');
                 if (loggedUser && loggedUser.role === 'admin') {
                     btnManage.classList.remove('hidden');
@@ -791,10 +844,28 @@
                     btnManage.classList.add('hidden');
                 }
 
+                updatePPPButtonsVisibility(loggedUser);
                 showMainMenu();
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('appContainer').classList.add('hidden');
+            }
+        }
+
+        function updatePPPButtonsVisibility(loggedUser) {
+            const btnAltaVet = document.getElementById('btnAltaVet');
+            const btnPadronVet = document.getElementById('btnPadronVet');
+
+            if (currentModule === 'ppp') {
+                btnAltaVet.classList.remove('hidden');
+                if (loggedUser && loggedUser.role === 'admin') {
+                    btnPadronVet.classList.remove('hidden');
+                } else {
+                    btnPadronVet.classList.add('hidden');
+                }
+            } else {
+                btnAltaVet.classList.add('hidden');
+                btnPadronVet.classList.add('hidden');
             }
         }
 
@@ -984,8 +1055,8 @@
                         <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">Usuario: <strong>${usr.usuario}</strong> | Legajo: <strong>${usr.legajo || 'S/N'}</strong></p>
                     </div>
                     <div class="flex items-center space-x-1">
-                        <button onclick="editUser('${usr.id}')" class="text-slate-400 hover:text-blue-600 p-1.5" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                        ${usr.usuario !== 'mfuertes' ? `<button onclick="deleteUser('${usr.id}')" class="text-slate-400 hover:text-red-600 p-1.5" title="Eliminar"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-[10px] text-slate-400 italic px-1">Principal</span>'}
+                        <button onclick="editUser('${usr.id}')" class="text-slate-400 hover:text-blue-600 p-1.5 cursor-pointer" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${usr.usuario !== 'mfuertes' ? `<button onclick="deleteUser('${usr.id}')" class="text-slate-400 hover:text-red-600 p-1.5 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>` : '<span class="text-[10px] text-slate-400 italic px-1">Principal</span>'}
                     </div>
                 `;
                 container.appendChild(div);
@@ -1063,6 +1134,186 @@
                 saveDB();
                 renderUsersList();
                 showToast("Operador eliminado", "error");
+            }
+        }
+
+        // FUNCIÓN INTELIGENTE CORREGIDA: CONTINÚA LA NUMERACIÓN SIN CEROS A LA IZQUIERDA
+        function generarSiguienteTramite(modKey) {
+            const records = db[modKey] || [];
+            if (records.length === 0) return "1";
+            
+            let maxNum = 0;
+            records.forEach(r => {
+                const num = parseInt(r.tramite, 10);
+                if (!isNaN(num) && num > maxNum) {
+                    maxNum = num;
+                }
+            });
+            
+            const siguiente = maxNum + 1;
+            return String(siguiente);
+        }
+
+        // FUNCIONES DE VETERINARIOS Y AUTOCOMPLETADO
+        function updateVetsDatalist() {
+            const datalist = document.getElementById('vetsDatalist');
+            if (!datalist) return;
+            datalist.innerHTML = '';
+            if (db.veterinarios && Array.isArray(db.veterinarios)) {
+                db.veterinarios.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.nombre;
+                    opt.setAttribute('data-matricula', v.matricula);
+                    datalist.appendChild(opt);
+                });
+            }
+        }
+
+        function autoCompleteVetMatricula(inputEl) {
+            const val = inputEl.value;
+            const matEl = document.getElementById('input_matriculaVet');
+            if (!matEl) return;
+            
+            const vetMatch = (db.veterinarios || []).find(v => v.nombre.toLowerCase() === val.toLowerCase());
+            if (vetMatch) {
+                matEl.value = vetMatch.matricula;
+            }
+        }
+
+        function openAltaVetModal() {
+            document.getElementById('vetNombre').value = '';
+            document.getElementById('vetMatricula').value = '';
+            document.getElementById('altaVetModal').classList.remove('hidden');
+        }
+
+        function closeAltaVetModal() {
+            document.getElementById('altaVetModal').classList.add('hidden');
+        }
+
+        function handleSaveVet(e) {
+            e.preventDefault();
+            const nom = document.getElementById('vetNombre').value.trim();
+            const mat = document.getElementById('vetMatricula').value.trim();
+
+            if (!db.veterinarios) db.veterinarios = [];
+
+            if (db.veterinarios.some(v => v.nombre.toLowerCase() === nom.toLowerCase())) {
+                alert("El profesional ya está registrado en el padrón.");
+                return;
+            }
+
+            db.veterinarios.push({
+                id: 'vet_' + Date.now(),
+                nombre: nom,
+                matricula: mat
+            });
+
+            saveDB();
+            closeAltaVetModal();
+            showToast("Veterinario registrado en la nube", "success");
+
+            const vetInput = document.getElementById('input_veterinario');
+            const matInput = document.getElementById('input_matriculaVet');
+            if (vetInput && matInput) {
+                vetInput.value = nom;
+                matInput.value = mat;
+            }
+        }
+
+        function openPadronVetModal() {
+            resetVetEditForm();
+            renderVetsList();
+            document.getElementById('padronVetModal').classList.remove('hidden');
+        }
+
+        function closePadronVetModal() {
+            document.getElementById('padronVetModal').classList.add('hidden');
+        }
+
+        function resetVetEditForm() {
+            document.getElementById('vetEditId').value = '';
+            document.getElementById('vetEditNombre').value = '';
+            document.getElementById('vetEditMatricula').value = '';
+            document.getElementById('vetEditFormTitle').innerText = 'Crear / Editar Profesional';
+            document.getElementById('btnSubmitVetEditText').innerText = 'Guardar en Padrón';
+            document.getElementById('btnCancelVetEdit').classList.add('hidden');
+        }
+
+        function renderVetsList() {
+            const container = document.getElementById('vetsListContainer');
+            container.innerHTML = '';
+
+            if (!db.veterinarios || db.veterinarios.length === 0) {
+                container.innerHTML = `<div class="p-4 text-xs text-center text-slate-500">No hay veterinarios registrados en el padrón.</div>`;
+                return;
+            }
+
+            db.veterinarios.forEach(v => {
+                const div = document.createElement('div');
+                div.className = "p-3 flex items-center justify-between text-sm";
+                div.innerHTML = `
+                    <div class="space-y-0.5">
+                        <span class="font-bold text-slate-800 dark:text-slate-200">${v.nombre}</span>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">Matrícula: <strong>${v.matricula}</strong></p>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="editVet('${v.id}')" class="text-slate-400 hover:text-blue-600 p-1.5 cursor-pointer" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteVet('${v.id}')" class="text-slate-400 hover:text-red-600 p-1.5 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function handleEditSaveVet(e) {
+            e.preventDefault();
+            const editId = document.getElementById('vetEditId').value;
+            const nom = document.getElementById('vetEditNombre').value.trim();
+            const mat = document.getElementById('vetEditMatricula').value.trim();
+
+            if (!db.veterinarios) db.veterinarios = [];
+
+            if (editId) {
+                const idx = db.veterinarios.findIndex(x => x.id === editId);
+                if (idx !== -1) {
+                    db.veterinarios[idx].nombre = nom;
+                    db.veterinarios[idx].matricula = mat;
+                    saveDB();
+                    showToast("Profesional actualizado", "success");
+                    resetVetEditForm();
+                    renderVetsList();
+                }
+            } else {
+                db.veterinarios.push({
+                    id: 'vet_' + Date.now(),
+                    nombre: nom,
+                    matricula: mat
+                });
+                saveDB();
+                showToast("Profesional guardado en el padrón", "success");
+                resetVetEditForm();
+                renderVetsList();
+            }
+        }
+
+        function editVet(id) {
+            const v = (db.veterinarios || []).find(x => x.id === id);
+            if (v) {
+                document.getElementById('vetEditId').value = v.id;
+                document.getElementById('vetEditNombre').value = v.nombre;
+                document.getElementById('vetEditMatricula').value = v.matricula;
+                document.getElementById('vetEditFormTitle').innerText = 'Editar Profesional';
+                document.getElementById('btnSubmitVetEditText').innerText = 'Guardar Cambios';
+                document.getElementById('btnCancelVetEdit').classList.remove('hidden');
+            }
+        }
+
+        function deleteVet(id) {
+            if (confirm("¿Estás seguro de eliminar este profesional del padrón?")) {
+                db.veterinarios = (db.veterinarios || []).filter(x => x.id !== id);
+                saveDB();
+                renderVetsList();
+                showToast("Profesional eliminado", "error");
             }
         }
 
@@ -1177,7 +1428,6 @@
             currentModule = modKey;
             const config = moduleConfigs[modKey];
 
-            // Reset de paginación al cambiar de módulo
             listaFiltradaCache = null;
             paginaActual = 1;
 
@@ -1190,6 +1440,10 @@
             document.getElementById('moduleBadge').className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${config.badgeClass}`;
             document.getElementById('moduleTitle').innerText = config.title;
             document.getElementById('moduleDesc').innerText = config.desc;
+
+            const currentUsername = sessionStorage.getItem(CURRENT_USER_KEY);
+            const loggedUser = users.find(x => x.usuario === currentUsername);
+            updatePPPButtonsVisibility(loggedUser);
 
             renderTable();
         }
@@ -1223,7 +1477,6 @@
                 emptyState.classList.add('hidden');
             }
 
-            // Lógica de Paginación Local por Lotes
             const totalPaginas = Math.ceil(records.length / REGISTROS_POR_PAGINA) || 1;
             if (paginaActual > totalPaginas) paginaActual = totalPaginas;
             if (paginaActual < 1) paginaActual = 1;
@@ -1268,8 +1521,8 @@
 
                 cellsHtml += `
                     <td class="px-4 py-3 text-right space-x-2" onclick="event.stopPropagation()">
-                        <button onclick="editRecord('${rec.id}')" class="text-slate-400 hover:text-blue-600 px-1" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="deleteRecord('${rec.id}')" class="text-slate-400 hover:text-red-600 px-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="editRecord('${rec.id}')" class="text-slate-400 hover:text-blue-600 px-1 cursor-pointer" title="Editar"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteRecord('${rec.id}')" class="text-slate-400 hover:text-red-600 px-1 cursor-pointer" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
 
@@ -1311,9 +1564,15 @@
             config.fields.forEach(f => {
                 const div = document.createElement('div');
                 div.className = "space-y-1";
+
+                let extraAttrs = '';
+                if (f.list) extraAttrs += ` list="${f.list}"`;
+                if (f.autocomplete) extraAttrs += ` autocomplete="${f.autocomplete}"`;
+                if (f.oninput) extraAttrs += ` oninput="${f.oninput}"`;
+
                 div.innerHTML = `
                     <label class="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">${f.label} ${f.required ? '*' : ''}</label>
-                    <input type="${f.type}" id="input_${f.id}" ${f.required ? 'required' : ''} class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-400">
+                    <input type="${f.type}" id="input_${f.id}" ${f.required ? 'required' : ''}${extraAttrs} class="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-slate-400">
                 `;
                 container.appendChild(div);
             });
@@ -1328,7 +1587,7 @@
                             el.value = item[f.id];
                         }
                     });
-                    if (item.photo) {
+                    if (item.photo && !item.photo.includes('placehold.co')) {
                         document.getElementById('modalPhotoPreview').src = item.photo;
                         document.getElementById('modalPhotoPreview').classList.remove('hidden');
                         document.getElementById('modalPhotoPlaceholder').classList.add('hidden');
@@ -1339,6 +1598,12 @@
                 const elEmision = document.getElementById('input_fechaEmision');
                 if (elEmision) {
                     elEmision.value = fechaHoy;
+                }
+                
+                // AUTOGENERAR NÚMERO DE TRÁMITE CORRELATIVO POR MÓDULO SIN CEROS
+                const elTramite = document.getElementById('input_tramite');
+                if (elTramite) {
+                    elTramite.value = generarSiguienteTramite(currentModule);
                 }
             }
 
@@ -1377,7 +1642,7 @@
             });
 
             const photoPreview = document.getElementById('modalPhotoPreview').src;
-            newItem.photo = photoPreview && !photoPreview.includes('placeholder') ? photoPreview : 'https://placehold.co/150x150/e2e8f0/64748b?text=FOTO';
+            newItem.photo = photoPreview && !photoPreview.includes('placeholder') && photoPreview !== window.location.href ? photoPreview : 'https://placehold.co/150x150/e2e8f0/64748b?text=FOTO';
 
             if (editId) {
                 const idx = db[currentModule].findIndex(x => x.id === editId);
@@ -1478,7 +1743,7 @@
                 const textoNorma = "Acompañada del DNI del titular, la presente credencial, certifica el registro del mismo como paseador de canes en el Partido de General Pueyrredón. (Art. 20 Cap IV. Ordenanza 22.031)";
                 const nombreTarjeta = "REPAC";
                 const subDatos = "Datos del paseador:";
-                const tramiteStr = rec.tramite ? `${rec.tramite}` : '00000';
+                const tramiteStr = rec.tramite ? `${rec.tramite}` : '-';
 
                 const htmlCard = (isCopy) => `
                     <div class="space-y-4 pr-4 border-r border-slate-300">
@@ -1520,7 +1785,7 @@
                             <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Domicilio:</span> <span class="text-slate-900">${rec.domicilio || '-'}</span></div>
                             <div class="border-b border-dotted border-slate-300 pb-0.5"><span class="font-bold text-slate-700">Teléfono:</span> <span class="text-slate-900">${rec.telefono || '-'}</span></div>
                         </div>
-                        <p class="text-[9px] text-slate-500 pt-1">${isCopy ? 'Constancia de Registro Interno - Libro de Actas.' : 'Credencial Válida por dos años a partir de la fecha impresa.'}</p>
+                        <p class="text-[9px] text-slate-500 pt-1">${isCopy ? 'Constancia de Registro Interno - Libro de Actas.' : 'Credencial Válida por deux años a partir de la fecha impresa.'}</p>
                     </div>
                 `;
 
@@ -1532,7 +1797,7 @@
                 const textoNorma = "Acompañada del DNI del titular, la presente credencial, certifica el registro del mismo como adiestrador de canes en el Partido de General Pueyrredón. (Art. 20 Cap IV. Ordenanza 22.031)";
                 const nombreTarjeta = "RAC";
                 const subDatos = "Datos del adiestrador:";
-                const tramiteStr = rec.tramite ? `${rec.tramite}` : '00000';
+                const tramiteStr = rec.tramite ? `${rec.tramite}` : '-';
 
                 const htmlCard = (isCopy) => `
                     <div class="space-y-4 pr-4 border-r border-slate-300">
@@ -1599,7 +1864,7 @@
                             </div>
                             <div class="mt-1">
                                 <h3 class="text-sm font-black text-slate-900">Registro Municipal Canino REMCA</h3>
-                                ${isCopy ? `<p class="text-[10px] font-mono font-bold text-slate-800 mt-0.5">Nº TRÁMITE: ${rec.tramite || '00000'}</p>` : `<p class="text-[11px] font-bold text-slate-800 mt-0.5">Microchip N°: <span class="font-mono font-normal">${rec.chip || '-'}</span></p>`}
+                                ${isCopy ? `<p class="text-[10px] font-mono font-bold text-slate-800 mt-0.5">Nº TRÁMITE: ${rec.tramite || '-'}</p>` : `<p class="text-[11px] font-bold text-slate-800 mt-0.5">Microchip N°: <span class="font-mono font-normal">${rec.chip || '-'}</span></p>`}
                             </div>
                             <div class="space-y-0.5 text-[11px] mt-1">
                                 <div><span class="font-bold">Nombre:</span> ${rec.nombreAnimal || '-'}</div>
@@ -1660,7 +1925,6 @@
                 document.getElementById('credBody2').innerHTML = htmlPppCard(true);
             }
 
-            // Animación de Zoom y Desvanecimiento al abrir la credencial
             credSection.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
             credSection.classList.add('opacity-100');
 
